@@ -1,0 +1,895 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#fff8e9">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <title>Kong Kong Cards</title>
+  <style>
+@import url("https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;900&display=swap");
+
+:root {
+  --ink: #29323a;
+  --cream: #fff5dc;
+  --paper: #fffdf7;
+  --orange: #ff6f61;
+  --yellow: #ffd54f;
+  --green: #73d68c;
+  --blue: #63c7ff;
+  --pink: #ff8fbd;
+  --purple: #ad8cff;
+  --mint: #71e3d6;
+  --shadow: 0 10px 0 rgba(64, 52, 39, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 7% 9%, rgba(255, 213, 79, .48) 0 7px, transparent 8px),
+    radial-gradient(circle at 90% 18%, rgba(99, 199, 255, .45) 0 8px, transparent 9px),
+    radial-gradient(circle at 22% 82%, rgba(255, 143, 189, .35) 0 10px, transparent 11px),
+    linear-gradient(145deg, #fff8e9 0%, #ffeff7 45%, #eaf8ff 100%);
+  font-family: "Jua", "Arial Rounded MT Bold", "Comic Sans MS", "Trebuchet MS", sans-serif;
+  font-weight: 700;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+h1, h2, h3, strong, .category-name, .buddy-wave {
+  letter-spacing: .015em;
+  text-shadow: 0 2px 0 rgba(255,255,255,.72);
+}
+.app-shell { width: min(100%, 920px); min-height: 100vh; margin: auto; padding: 18px clamp(16px, 4vw, 34px) 96px; }
+
+.topbar { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.brand { display: flex; gap: 8px; align-items: center; font-size: 22px; background: transparent; padding: 0; white-space: nowrap; }
+.brand-dot { color: var(--orange); font-size: 17px; }
+.top-actions { display: flex; align-items: center; gap: 8px; }
+.language-button, .speech-mode-button, .settings-button, .visual-mode-button, .fullscreen-button {
+  background: var(--yellow); border: 3px solid var(--ink); border-radius: 100px; padding: 8px 12px;
+  box-shadow: 0 4px 0 var(--ink); font-family: Nunito, "Jua", sans-serif; font-weight: 900;
+}
+.speech-mode-button { background: var(--blue); white-space: nowrap; }
+.visual-mode-button { background: #dff2e5; white-space: nowrap; }
+.fullscreen-button { width: 43px; height: 43px; padding: 0; background: var(--mint); }
+.language-button { background: var(--purple); color: white; }
+.settings-button { width: 43px; height: 43px; padding: 0; background: white; }
+.language-button:active, .speech-mode-button:active, .settings-button:active, .visual-mode-button:active, .fullscreen-button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.star-counter, .progress-pill {
+  display: flex; align-items: center; gap: 7px; min-width: 66px; justify-content: center;
+  background: white; border: 3px solid var(--ink); border-radius: 100px; padding: 7px 12px;
+  box-shadow: 0 4px 0 var(--ink); font-family: Nunito, sans-serif; font-weight: 900;
+}
+.round-button {
+  width: 46px; height: 46px; background: white; border: 3px solid var(--ink); border-radius: 50%;
+  box-shadow: 0 4px 0 var(--ink); font-size: 26px;
+}
+.round-button:active, .star-counter:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.hidden { visibility: hidden; }
+
+.screen { display: none; animation: enter .35s ease both; }
+.screen.active { display: block; }
+@keyframes enter { from { opacity: 0; transform: translateY(10px); } }
+
+.hero { display: grid; grid-template-columns: 1.4fr .7fr; align-items: center; padding: 28px 0 24px; }
+.eyebrow { margin: 0 0 7px; color: var(--orange); font-size: 17px; letter-spacing: .04em; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin-bottom: 12px; font-size: clamp(38px, 8vw, 62px); line-height: 1.03; letter-spacing: -.04em; }
+h1 span { color: var(--orange); position: relative; }
+.hero-note { margin: 0; font-size: 17px; color: #687076; }
+.hero-buddy {
+  position: relative; width: clamp(112px, 24vw, 170px); aspect-ratio: 1; justify-self: end;
+  background: linear-gradient(145deg, #ffe57a, #ff9f6e); border: 4px solid var(--ink); border-radius: 48% 52% 45% 55%;
+  box-shadow: var(--shadow); transform: rotate(3deg); transition: transform .2s;
+}
+.hero-buddy:active { transform: scale(.92) rotate(-3deg); }
+.buddy-face { font-family: Nunito, sans-serif; font-size: clamp(32px, 7vw, 50px); }
+.buddy-wave { position: absolute; top: -18px; right: -14px; background: white; padding: 8px 11px; border: 3px solid var(--ink); border-radius: 16px; transform: rotate(8deg); }
+.buddy-rays { position: absolute; left: -17px; bottom: 9px; color: var(--orange); font-size: 27px; }
+
+.section-title { display: flex; justify-content: space-between; align-items: baseline; margin: 16px 0 13px; }
+.section-title h2, .card-heading h2 { margin: 0; font-size: 26px; }
+.section-title span { color: #7b8388; }
+.category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.category-card {
+  position: relative; min-height: 142px; display: flex; flex-direction: column; justify-content: space-between; text-align: left;
+  padding: 15px; border: 3px solid var(--ink); border-radius: 24px; box-shadow: var(--shadow);
+  overflow: hidden; transition: transform .15s, box-shadow .15s; background-image: linear-gradient(145deg, rgba(255,255,255,.36), rgba(255,255,255,0));
+}
+.category-card:active { transform: translateY(6px) scale(.98); box-shadow: 0 4px 0 rgba(64, 52, 39, .12); }
+.category-card::after { content: "●"; position: absolute; top: 10px; right: 13px; color: rgba(255,255,255,.65); }
+.category-emoji { font-size: 51px; filter: drop-shadow(0 4px 0 rgba(255,255,255,.55)); }
+.category-name { font-size: 21px; }
+.category-card small { opacity: .65; }
+
+.quiz-banner {
+  width: 100%; margin-top: 22px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 13px;
+  text-align: left; padding: 16px; background: linear-gradient(135deg, #ffffff, #fff1b8); border: 3px solid var(--ink); border-radius: 24px; box-shadow: var(--shadow);
+}
+.review-banner {
+  width: 100%; margin-top: 14px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 13px;
+  text-align: left; padding: 15px 18px; background: linear-gradient(135deg, #dff2e5, #c6f7ff); border: 3px solid var(--ink); border-radius: 24px; box-shadow: var(--shadow);
+}
+.install-banner {
+  width: 100%; margin-top: 14px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 13px;
+  text-align: left; padding: 15px 18px; background: linear-gradient(135deg, #ffe082, #ff9fcb); border: 3px solid var(--ink); border-radius: 24px; box-shadow: var(--shadow);
+}
+.install-banner span:first-child { font-size: 30px; }
+.install-banner strong, .install-banner small { display: block; }
+.install-banner small { color: #687076; }
+.hidden-install { display: none; }
+.review-banner span:first-child { font-size: 30px; }
+.review-banner strong, .review-banner small { display: block; }
+.review-banner small { color: #687076; }
+.quiz-banner:active { transform: translateY(5px); box-shadow: 0 5px 0 rgba(64,52,39,.1); }
+.quiz-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--orange); color: white; border: 3px solid var(--ink); font: 900 27px Nunito; }
+.quiz-banner strong { display: block; font-size: 21px; }
+.quiz-banner small { color: #7b8388; }
+.quiz-arrow { font-size: 28px; }
+
+.card-heading { display: flex; justify-content: space-between; align-items: center; padding: 34px 4px 16px; }
+.heading-stats { display: flex; align-items: center; gap: 8px; }
+.study-timer { padding: 8px 11px; background: var(--blue); border: 3px solid var(--ink); border-radius: 100px; box-shadow: 0 4px 0 var(--ink); font-family: Nunito, sans-serif; }
+.flashcard-wrap { position: relative; display: flex; align-items: center; justify-content: center; margin: 12px 0 42px; padding-bottom: 22px; }
+.card-stack {
+  position: absolute;
+  width: min(76vw, 480px);
+  aspect-ratio: .88;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.stack-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid var(--ink);
+  border-radius: 40px;
+  box-shadow: 0 8px 0 rgba(41,50,58,.8);
+  overflow: hidden;
+}
+.stack-card::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 3px dashed rgba(255,255,255,.46);
+  border-radius: 26px;
+}
+.stack-card .stack-emoji {
+  font-size: clamp(112px, 28.6vw, 195px);
+  line-height: 1;
+  filter: drop-shadow(0 6px 0 rgba(255,255,255,.5));
+}
+.photo-visual {
+  position: relative;
+  width: min(78%, 320px);
+  aspect-ratio: 1.18;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 7px solid white;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255,255,255,.95), transparent 34%),
+    linear-gradient(140deg, rgba(255,255,255,.44), rgba(0,0,0,.08)),
+    var(--paper);
+  box-shadow: 0 10px 0 rgba(41,50,58,.24), inset 0 -18px 40px rgba(0,0,0,.08);
+}
+.photo-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255,255,255,.58), transparent 42%);
+  pointer-events: none;
+}
+.photo-visual img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+}
+.photo-visual .photo-emoji {
+  font-size: clamp(125px, 28vw, 210px);
+  filter: drop-shadow(0 10px 12px rgba(0,0,0,.22));
+}
+.flashcard.photo-mode .card-emoji {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  font-size: inherit;
+}
+.stack-card .photo-visual {
+  width: 68%;
+  border-width: 5px;
+  border-radius: 24px;
+}
+.stack-card .photo-visual .photo-emoji {
+  font-size: clamp(86px, 19vw, 150px);
+}
+.stack-card strong {
+  margin-top: 16px;
+  font-size: clamp(28px, 6vw, 42px);
+}
+.stack-card:nth-child(1) { transform: translate(-11px, 28px) rotate(-3deg); opacity: .55; }
+.stack-card:nth-child(2) { transform: translate(10px, 19px) rotate(2.3deg); opacity: .72; }
+.stack-card:nth-child(3) { transform: translate(-4px, 10px) rotate(-1deg); opacity: .9; }
+.flashcard {
+  position: relative; z-index: 2; width: min(76vw, 480px); aspect-ratio: .88; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--yellow); border: 4px solid var(--ink); border-radius: 40px; box-shadow: 0 14px 0 var(--ink);
+  overflow: hidden; user-select: none; touch-action: none; transition: background .25s, transform .15s;
+}
+.flashcard.dragging {
+  transition: none;
+  cursor: grabbing;
+  box-shadow: 0 18px 0 var(--ink);
+}
+.flashcard:active { transform: translateY(4px); box-shadow: 0 10px 0 var(--ink); }
+.card-emoji { font-size: clamp(150px, 36.4vw, 247px); line-height: 1.05; filter: drop-shadow(0 8px 0 rgba(255,255,255,.6)); }
+.flashcard h3 { margin: 12px 0 0; font-size: clamp(38px, 8vw, 56px); transform: rotate(-1deg); }
+.flashcard p { margin: 0; min-height: 28px; color: rgba(41,50,58,.68); font-size: 21px; }
+.tap-hint { position: absolute; top: 18px; left: 20px; background: rgba(255,255,255,.75); padding: 7px 12px; border-radius: 100px; }
+.sound-button { margin-top: 16px; padding: 9px 15px; border: 2px solid var(--ink); border-radius: 100px; background: white; box-shadow: 0 3px 0 var(--ink); }
+.card-sparkles span { position: absolute; font-size: 24px; opacity: .45; }
+.card-sparkles span:nth-child(1) { top: 18%; right: 14%; }
+.card-sparkles span:nth-child(2) { bottom: 24%; left: 10%; }
+.card-sparkles span:nth-child(3) { bottom: 12%; right: 15%; }
+.dots { display: flex; justify-content: center; gap: 8px; margin: 25px 0 12px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #d5d3c9; transition: .2s; }
+.dot.active { width: 28px; border-radius: 10px; background: var(--orange); }
+.swipe-hint { text-align: center; color: #858a8c; font-size: 15px; }
+
+.quiz-header { text-align: center; padding: 42px 0 20px; }
+.quiz-header h2 { margin-bottom: 12px; font-size: clamp(30px, 7vw, 44px); }
+.listen-prompt { padding: 10px 16px; border: 3px solid var(--ink); border-radius: 100px; background: white; box-shadow: 0 4px 0 var(--ink); }
+.quiz-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); justify-content: center; gap: 16px; }
+.quiz-choice {
+  aspect-ratio: 1; display: grid; place-items: center; background: white; border: 4px solid var(--ink); border-radius: 30px;
+  box-shadow: 0 9px 0 var(--ink); font-size: clamp(75px, 20vw, 130px); transition: .15s;
+}
+.quiz-choice:active { transform: translateY(6px); box-shadow: 0 3px 0 var(--ink); }
+.quiz-choice.correct { background: #bfe8c7; animation: happy .55s ease; }
+.quiz-choice.wrong { animation: nope .3s ease; }
+.quiz-feedback { height: 72px; display: grid; place-items: center; padding-top: 22px; color: var(--orange); font-size: 27px; }
+@keyframes happy { 50% { transform: scale(1.1) rotate(4deg); } }
+@keyframes nope { 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
+
+.celebration { pointer-events: none; position: fixed; inset: 0; z-index: 10; overflow: hidden; display: none; }
+.celebration.show { display: block; }
+.celebration span { position: absolute; top: 50%; left: 50%; font-size: 34px; animation: burst .8s ease-out forwards; }
+.celebration span:nth-child(1) { --x: -130px; --y: -150px; }
+.celebration span:nth-child(2) { --x: 130px; --y: -170px; }
+.celebration span:nth-child(3) { --x: -170px; --y: 30px; }
+.celebration span:nth-child(4) { --x: 160px; --y: 50px; color: var(--orange); }
+.celebration span:nth-child(5) { --x: 0px; --y: -210px; color: var(--blue); }
+@keyframes burst { to { transform: translate(var(--x), var(--y)) rotate(160deg) scale(.4); opacity: 0; } }
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 20; align-items: center; justify-content: center;
+  padding: 18px; background: rgba(41,50,58,.56); backdrop-filter: blur(5px);
+}
+.modal-overlay.show { display: flex; }
+.parent-panel, .completion-panel {
+  position: relative; width: min(100%, 560px); max-height: 90vh; overflow: auto; padding: 28px;
+  background: var(--cream); border: 4px solid var(--ink); border-radius: 32px; box-shadow: 0 12px 0 var(--ink);
+}
+.modal-close { position: absolute; right: 16px; top: 13px; background: transparent; font-size: 34px; }
+.setting-label { display: block; margin: 20px 0 9px; font-size: 18px; color: #687076; }
+.setting-row { display: flex; gap: 9px; }
+.setting-choice {
+  flex: 1; padding: 11px; background: white; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink);
+}
+.setting-choice.selected { background: var(--yellow); }
+.category-settings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.category-toggle { padding: 10px; text-align: left; background: white; border: 3px solid var(--ink); border-radius: 15px; opacity: .55; }
+.category-toggle.selected { opacity: 1; background: #dff2e5; }
+.save-settings { width: 100%; margin-top: 24px; padding: 14px; background: var(--orange); color: white; border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 var(--ink); font-size: 20px; }
+.completion-panel { text-align: center; overflow: visible; }
+.big-sticker { font-size: 110px; animation: happy .8s ease infinite alternate; }
+.sticker-shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; font-size: 30px; min-height: 42px; }
+
+@media (max-width: 620px) {
+  .app-shell { padding-top: 10px; }
+  .hero { padding-top: 20px; }
+  .category-grid { grid-template-columns: repeat(2, 1fr); gap: 11px; }
+  .category-card { min-height: 122px; padding: 13px; border-radius: 21px; }
+  .category-emoji { font-size: 43px; }
+  .flashcard { width: min(82vw, 430px); }
+  .card-stack { width: min(82vw, 430px); }
+  .brand { font-size: 18px; }
+  .language-button { padding: 7px 9px; }
+  .top-actions {
+    position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 18;
+    display: grid; grid-template-columns: 42px 42px 1fr 1fr 1fr 58px; gap: 6px;
+    padding: 9px; background: rgba(255,255,255,.9); border: 3px solid var(--ink); border-radius: 24px;
+    box-shadow: 0 7px 0 var(--ink); backdrop-filter: blur(8px);
+  }
+  .top-actions .settings-button,
+  .top-actions .fullscreen-button,
+  .top-actions .visual-mode-button,
+  .top-actions .speech-mode-button,
+  .top-actions .language-button,
+  .top-actions .star-counter {
+    position: static; width: auto; height: 44px; min-width: 0; padding: 6px 7px; font-size: 13px;
+    box-shadow: 0 3px 0 var(--ink);
+  }
+  .top-actions .settings-button { font-size: 18px; }
+  .top-actions .star-counter { gap: 2px; }
+  .star-counter { min-width: 58px; padding: 7px 9px; }
+}
+
+@media (max-height: 720px) {
+  .hero { padding: 10px 0; }
+  .category-card { min-height: 108px; }
+  .category-emoji { font-size: 38px; }
+  .quiz-banner { margin-top: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="round-button hidden" id="backButton" aria-label="Go home">←</button>
+      <button class="brand" id="brand"><span class="brand-dot">●</span><span id="brandText">콩콩 카드</span></button>
+      <div class="top-actions">
+        <button class="settings-button" id="settingsButton" aria-label="보호자 설정">⚙️</button>
+        <button class="fullscreen-button" id="fullscreenButton" aria-label="전체 화면"></button>
+        <button class="visual-mode-button" id="visualModeButton" aria-label="그림 모드"></button>
+        <button class="speech-mode-button" id="speechModeButton" aria-label="음성 모드"></button>
+        <button class="language-button" id="languageButton">English</button>
+        <div class="star-counter" aria-label="Stars"><span>⭐</span><span id="starCount">0</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="screen home-screen active" id="homeScreen">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow" id="heroEyebrow"></p>
+            <h1 id="heroTitle"></h1>
+            <p class="hero-note" id="heroNote"></p>
+          </div>
+          <button class="hero-buddy" id="heroBuddy" aria-label="Say hello">
+            <span class="buddy-rays">✦</span>
+            <span class="buddy-face">◕‿◕</span>
+            <span class="buddy-wave" id="buddyWave"></span>
+          </button>
+        </div>
+        <div class="section-title"><h2 id="categoryTitle"></h2><span id="categoryCount"></span></div>
+        <div class="category-grid" id="categoryGrid"></div>
+        <button class="quiz-banner" id="startQuiz">
+          <span class="quiz-icon">?</span>
+          <span><strong id="quizBannerTitle"></strong><small id="quizBannerNote"></small></span>
+          <span class="quiz-arrow">→</span>
+        </button>
+        <button class="review-banner" id="startReview">
+          <span>🔁</span><span><strong id="reviewTitle"></strong><small id="reviewNote"></small></span><span>→</span>
+        </button>
+        <button class="install-banner hidden-install" id="installApp">
+          <span>📲</span><span><strong id="installTitle"></strong><small id="installNote"></small></span><span>+</span>
+        </button>
+      </section>
+
+      <section class="screen card-screen" id="cardScreen">
+        <div class="card-heading">
+          <div><p class="eyebrow" id="categoryLabel"></p><h2 id="cardHeading"></h2></div>
+          <div class="progress-pill"><span id="cardPosition">1</span> / <span id="cardTotal">15</span></div>
+        </div>
+        <div class="flashcard-wrap" id="flashcardWrap">
+          <div class="card-stack" id="cardStack" aria-hidden="true"></div>
+          <article class="flashcard" id="flashcard" tabindex="0" aria-live="polite">
+            <span class="tap-hint" id="tapHint"></span>
+            <div class="card-sparkles"><span>✦</span><span>●</span><span>✦</span></div>
+            <div class="card-emoji" id="cardEmoji"></div>
+            <h3 id="cardWord"></h3>
+            <p id="cardSound"></p>
+            <div class="sound-button" id="soundButton"></div>
+          </article>
+        </div>
+        <div class="dots" id="dots"></div>
+        <p class="swipe-hint" id="swipeHint"></p>
+      </section>
+
+      <section class="screen quiz-screen" id="quizScreen">
+        <div class="quiz-header">
+          <p class="eyebrow" id="quizEyebrow"></p>
+          <h2 id="quizPrompt"></h2>
+          <button class="listen-prompt" id="listenPrompt"></button>
+        </div>
+        <div class="quiz-grid" id="quizGrid"></div>
+        <div class="quiz-feedback" id="quizFeedback" aria-live="assertive"></div>
+      </section>
+    </main>
+    <div class="celebration" id="celebration" aria-hidden="true">
+      <span>⭐</span><span>✦</span><span>⭐</span><span>●</span><span>✦</span>
+    </div>
+    <div class="modal-overlay" id="settingsModal" aria-hidden="true">
+      <section class="parent-panel" role="dialog" aria-modal="true">
+        <button class="modal-close" id="closeSettings">×</button>
+        <h2 id="settingsTitle"></h2>
+        <label class="setting-label" id="languageSettingLabel"></label>
+        <div class="setting-row">
+          <button class="setting-choice" data-language="ko">한국어</button>
+          <button class="setting-choice" data-language="en">English</button>
+        </div>
+        <label class="setting-label" id="categorySettingLabel"></label>
+        <div class="category-settings" id="categorySettings"></div>
+        <button class="save-settings" id="saveSettings"></button>
+      </section>
+    </div>
+    <div class="modal-overlay" id="completionModal" aria-hidden="true">
+      <section class="completion-panel">
+        <div class="big-sticker" id="earnedSticker">🌟</div>
+        <h2 id="completionTitle"></h2>
+        <p id="completionNote"></p>
+        <div class="sticker-shelf" id="stickerShelf"></div>
+        <button class="save-settings" id="finishSession"></button>
+      </section>
+    </div>
+  </div>
+  <script>
+const categories = [
+  { id: "animals", names: ["동물 친구들", "Animal Friends"], cover: "🐶", color: "#ffd460", cards: [
+    ["🐶","강아지","Dog","멍멍, 멍멍!","Woof, woof!"],["🐱","고양이","Cat","야옹, 야옹!","Meow, meow!"],["🐰","토끼","Rabbit","깡충깡충 뛰어요!","Hop, hop!"],
+    ["🦁","사자","Lion","어흥! 사자가 울어요!","Roar!"],["🐘","코끼리","Elephant","뿌우우!","Toot, toot!"],["🐸","개구리","Frog","개굴개굴!","Ribbit, ribbit!"],
+    ["🐻","곰","Bear","으르렁, 곰이에요!","Growl!"],["🐼","판다","Panda","냠냠, 대나무를 먹어요!","Munch, munch!"],["🐵","원숭이","Monkey","우끼끼, 우끼끼!","Ooh, ooh, ah, ah!"],
+    ["🐷","돼지","Pig","꿀꿀, 꿀꿀!","Oink, oink!"],["🐮","소","Cow","음메에!","Moo!"],["🐔","닭","Chicken","꼬꼬댁, 꼬꼬!","Cluck, cluck!"],
+    ["🐧","펭귄","Penguin","뒤뚱뒤뚱 걸어요!","Waddle, waddle!"],["🦆","오리","Duck","꽥꽥, 꽥꽥!","Quack, quack!"],["🦋","나비","Butterfly","팔랑팔랑 날아요!","Flutter, flutter!"]
+  ]},
+  { id: "fruits", names: ["맛있는 과일", "Yummy Fruits"], cover: "🍎", color: "#f4a6b8", cards: [
+    ["🍎","사과","Apple","아삭아삭!","Crunch!"],["🍌","바나나","Banana","길쭉해요","Long and yellow"],["🍓","딸기","Strawberry","새콤달콤!","Sweet!"],
+    ["🍉","수박","Watermelon","시원해요","Juicy!"],["🍇","포도","Grapes","송알송알","Pop pop!"],["🍊","귤","Orange","주황색이에요","Orange and round"],
+    ["🍐","배","Pear","달콤해요","Sweet!"],["🍑","복숭아","Peach","말랑말랑!","Soft!"],["🍒","체리","Cherries","동글동글!","Round!"],
+    ["🥝","키위","Kiwi","새콤해요","Tangy!"],["🍍","파인애플","Pineapple","뾰족뾰족!","Spiky!"],["🥭","망고","Mango","노랗고 달아요","Golden and sweet"],
+    ["🥥","코코넛","Coconut","단단해요","Hard shell"],["🍋","레몬","Lemon","아이 셔!","So sour!"],["🫐","블루베리","Blueberries","작고 파래요","Small and blue"]
+  ]},
+  { id: "vehicles", names: ["씽씽 탈것", "Things That Go"], cover: "🚗", color: "#79bde8", cards: [
+    ["🚗","자동차","Car","부릉부릉, 달려요!","Vroom, vroom!"],["🚌","버스","Bus","빵빵! 버스가 와요!","Beep, beep!"],["🚂","기차","Train","칙칙폭폭, 출발해요!","Choo, choo!"],
+    ["✈️","비행기","Airplane","슈우웅, 하늘을 날아요!","Whoosh!"],["🚲","자전거","Bicycle","따르릉, 씽씽!","Ring, ring!"],["🚒","소방차","Fire Truck","애앵애앵, 소방차예요!","Wee-woo, wee-woo!"],
+    ["🚑","구급차","Ambulance","삐뽀삐뽀, 길을 비켜요!","Wee-woo, wee-woo!"],["🚓","경찰차","Police Car","삐용삐용, 경찰차예요!","Wee-woo!"],["🚕","택시","Taxi","부릉부릉, 택시가 가요!","Vroom, vroom!"],
+    ["🚜","트랙터","Tractor","덜컹덜컹!","Rumble!"],["🚁","헬리콥터","Helicopter","두두두두!","Whir!"],["🚀","로켓","Rocket","발사!","Blast off!"],
+    ["⛵","돛단배","Sailboat","둥실둥실","Sail away!"],["🛴","킥보드","Scooter","씽씽!","Zoom!"],["🏍️","오토바이","Motorcycle","부아앙!","Vroom!"]
+  ]},
+  { id: "colors", names: ["알록달록 색깔", "Bright Colors"], cover: "🎨", color: "#b4a2df", cards: [
+    ["🔴","빨간색","Red","사과처럼 빨개요!","Red like an apple!"],["🟡","노란색","Yellow","해님처럼 노래요!","Yellow like the sun!"],["🔵","파란색","Blue","하늘처럼 파래요!","Blue like the sky!"],
+    ["🟢","초록색","Green","나뭇잎처럼 초록초록!","Green like a leaf!"],["🟣","보라색","Purple","포도처럼 보라보라!","Purple like grapes!"],["🟠","주황색","Orange","귤처럼 주황주황!","Orange like an orange!"],
+    ["🩷","분홍색","Pink","분홍 꽃 색","Like a flower"],["🤎","갈색","Brown","갈색 초콜릿 색","Like chocolate"],["⚫","검은색","Black","까만 밤 색","Like the night"],
+    ["⚪","하얀색","White","하얀 구름 색","Like a cloud"],["🩶","회색","Gray","회색 돌 색","Like a stone"],["🩵","하늘색","Sky Blue","맑은 하늘 색","Like a clear sky"],
+    ["💛","금색","Gold","반짝이는 금빛","Shiny gold"],["🩶","은색","Silver","반짝이는 은빛","Shiny silver"],["🌈","무지개색","Rainbow","모든 색깔","Every color"]
+  ]},
+  { id: "numbers", names: ["하나 둘 숫자", "Fun Numbers"], cover: "1️⃣", color: "#8ccfa8", cards: [
+    ["1️⃣","하나","One","하나!","One!"],["2️⃣","둘","Two","둘!","Two!"],["3️⃣","셋","Three","셋!","Three!"],
+    ["4️⃣","넷","Four","넷!","Four!"],["5️⃣","다섯","Five","다섯!","Five!"],["6️⃣","여섯","Six","여섯!","Six!"],
+    ["7️⃣","일곱","Seven","일곱!","Seven!"],["8️⃣","여덟","Eight","여덟!","Eight!"],["9️⃣","아홉","Nine","아홉!","Nine!"],
+    ["🔟","열","Ten","열!","Ten!"],["1️⃣1️⃣","열하나","Eleven","열하나!","Eleven!"],["1️⃣2️⃣","열둘","Twelve","열둘!","Twelve!"],
+    ["1️⃣3️⃣","열셋","Thirteen","열셋!","Thirteen!"],["1️⃣4️⃣","열넷","Fourteen","열넷!","Fourteen!"],["1️⃣5️⃣","열다섯","Fifteen","열다섯!","Fifteen!"]
+  ]},
+  { id: "nature", names: ["반짝 자연", "Lovely Nature"], cover: "🌞", color: "#ffab73", cards: [
+    ["🌞","해","Sun","반짝반짝!","Shine!"],["🌙","달","Moon","둥실둥실","Good night"],["⭐","별","Star","반짝!","Twinkle!"],
+    ["🌈","무지개","Rainbow","알록달록","So colorful"],["🌳","나무","Tree","쑥쑥!","Grow tall!"],["🌸","꽃","Flower","활짝!","Bloom!"],
+    ["☁️","구름","Cloud","둥실둥실","Float!"],["🌧️","비","Rain","주룩주룩!","Pitter patter!"],["❄️","눈","Snow","펄펄!","Let it snow!"],
+    ["🌊","파도","Wave","철썩철썩!","Splash!"],["🔥","불","Fire","활활!","Crackle!"],["🍂","낙엽","Fallen Leaf","사각사각!","Rustle!"],
+    ["🌻","해바라기","Sunflower","해를 봐요","Face the sun"],["🌵","선인장","Cactus","뾰족뾰족!","Prickly!"],["🍄","버섯","Mushroom","쏙쏙!","Pop up!"]
+  ]},
+  { id: "food", names: ["냠냠 음식", "Yummy Food"], cover: "🍕", color: "#ffc56e", cards: [
+    ["🍕","피자","Pizza","냠냠!","Yum!"],["🍔","햄버거","Hamburger","한입 크게!","Big bite!"],["🍞","빵","Bread","폭신폭신!","Soft!"],
+    ["🍙","주먹밥","Rice Ball","동글동글!","Round!"],["🍜","국수","Noodles","후루룩!","Slurp!"],["🍳","달걀","Egg","지글지글!","Sizzle!"],
+    ["🥞","팬케이크","Pancake","달콤해요","Sweet!"],["🧀","치즈","Cheese","쭉쭉!","Cheesy!"],["🥕","당근","Carrot","아삭아삭!","Crunch!"],
+    ["🌽","옥수수","Corn","톡톡!","Pop!"],["🍪","쿠키","Cookie","바삭바삭!","Crispy!"],["🍩","도넛","Donut","동글동글!","Round!"],
+    ["🍦","아이스크림","Ice Cream","차가워요","Cold!"],["🎂","케이크","Cake","축하해요!","Hooray!"],["🥛","우유","Milk","꿀꺽꿀꺽!","Gulp!"]
+  ]},
+  { id: "body", names: ["내 몸", "My Body"], cover: "👋", color: "#f3b6cc", cards: [
+    ["👀","눈","Eyes","반짝반짝!","Blink blink!"],["👂","귀","Ear","잘 들어요","Listen!"],["👃","코","Nose","킁킁!","Sniff!"],
+    ["👄","입","Mouth","아 하고 벌려요","Open wide!"],["🦷","이","Tooth","반짝반짝!","Shiny!"],["👅","혀","Tongue","메롱!","Silly tongue!"],
+    ["👋","손","Hand","흔들흔들!","Wave!"],["🦶","발","Foot","쿵쿵!","Stomp!"],["🦵","다리","Leg","성큼성큼!","Step!"],
+    ["💪","팔","Arm","힘이 세요","Strong!"],["👍","엄지손가락","Thumb","최고예요!","Great!"],["🫶","두 손","Two Hands","사랑해요","Love!"],
+    ["🧠","머리","Head","생각해요","Think!"],["🫀","심장","Heart","콩닥콩닥!","Thump thump!"],["🦴","뼈","Bone","튼튼해요","Strong!"]
+  ]},
+  { id: "home", names: ["우리 집", "At Home"], cover: "🏠", color: "#a9d7c5", cards: [
+    ["🏠","집","House","우리 집이에요","Home sweet home"],["🚪","문","Door","똑똑!","Knock knock!"],["🪟","창문","Window","밖을 봐요","Look outside"],
+    ["🛏️","침대","Bed","쿨쿨 자요","Sleep tight"],["🛋️","소파","Sofa","편안해요","Comfy!"],["🪑","의자","Chair","앉아봐요","Sit down"],
+    ["🛁","욕조","Bathtub","첨벙첨벙!","Splash!"],["🚽","변기","Toilet","쉬해요","Potty time"],["🧼","비누","Soap","뽀득뽀득!","Squeaky clean"],
+    ["🪥","칫솔","Toothbrush","치카치카!","Brush brush!"],["🧸","곰인형","Teddy Bear","꼭 안아요","Big hug"],["🧦","양말","Socks","쏙 신어요","Put them on"],
+    ["👕","옷","Shirt","옷을 입어요","Get dressed"],["🧢","모자","Hat","머리에 써요","On your head"],["👟","신발","Shoes","신고 나가요","Let's go!"]
+  ]},
+  { id: "shapes", names: ["재미있는 모양", "Fun Shapes"], cover: "🔺", color: "#bdb1e6", cards: [
+    ["●","동그라미","Circle","동글동글!","Round!"],["🔺","세모","Triangle","뾰족한 곳이 셋","Three corners"],["■","네모","Square","반듯반듯!","Four equal sides"],
+    ["⭐","별 모양","Star","반짝반짝!","Twinkle!"],["❤️","하트","Heart","사랑해요","Love!"],["⬭","타원","Oval","길쭉한 동그라미","Long circle"],
+    ["▭","직사각형","Rectangle","길쭉한 네모","Long square"],["💎","마름모","Diamond","반짝반짝!","Shiny!"],["🌙","초승달","Crescent","휘어진 달","Curved moon"],
+    ["✚","십자 모양","Cross","더하기 모양","Plus shape"],["🌀","소용돌이","Spiral","빙글빙글!","Round and round"],["⬟","오각형","Pentagon","모서리가 다섯","Five corners"],
+    ["⬢","육각형","Hexagon","모서리가 여섯","Six corners"],["☀️","햇살 모양","Sunburst","쨍쨍!","Shine!"],["〰️","물결 모양","Wave","구불구불!","Wiggle!"]
+  ]}
+];
+
+const extraCards = {
+  animals: [
+    ["🦊","여우","Fox","살금살금 걸어요!","Sneak, sneak!"],["🐯","호랑이","Tiger","어흥! 호랑이예요!","Grrr, tiger!"],["🦓","얼룩말","Zebra","줄무늬가 있어요!","Stripey zebra!"],["🦒","기린","Giraffe","목이 길어요!","Tall giraffe!"],["🦘","캥거루","Kangaroo","폴짝폴짝!","Boing, boing!"]
+  ],
+  fruits: [
+    ["🍈","멜론","Melon","향긋해요!","Sweet melon!"],["🍅","토마토","Tomato","동글동글 빨개요!","Round and red!"],["🥑","아보카도","Avocado","부드러워요!","Soft avocado!"],["🫒","올리브","Olive","작고 동글해요!","Tiny olive!"],["🍏","초록 사과","Green Apple","아삭아삭 초록 사과!","Crunchy green apple!"]
+  ],
+  vehicles: [
+    ["🚚","트럭","Truck","덜컹덜컹 가요!","Rumble, rumble!"],["🚛","큰 트럭","Big Truck","무거운 짐을 실어요!","Big truck!"],["🚢","배","Ship","둥둥 떠가요!","Sail, sail!"],["🚡","케이블카","Cable Car","하늘 위로 올라가요!","Up we go!"],["🚝","전철","Monorail","스르륵 지나가요!","Whoosh by!"]
+  ],
+  colors: [
+    ["🟥","빨간 네모","Red Square","빨강이 반짝!","Bright red!"],["🟨","노란 네모","Yellow Square","노랑이 환해요!","Bright yellow!"],["🟦","파란 네모","Blue Square","파랑이 시원해요!","Cool blue!"],["🟩","초록 네모","Green Square","초록이 싱그러워요!","Fresh green!"],["🟪","보라 네모","Purple Square","보라가 예뻐요!","Pretty purple!"]
+  ],
+  numbers: [
+    ["1️⃣6️⃣","열여섯","Sixteen","열여섯!","Sixteen!"],["1️⃣7️⃣","열일곱","Seventeen","열일곱!","Seventeen!"],["1️⃣8️⃣","열여덟","Eighteen","열여덟!","Eighteen!"],["1️⃣9️⃣","열아홉","Nineteen","열아홉!","Nineteen!"],["2️⃣0️⃣","스무","Twenty","스무!","Twenty!"]
+  ],
+  nature: [
+    ["⛰️","산","Mountain","높은 산이에요!","Big mountain!"],["🏖️","바닷가","Beach","모래가 사각사각!","Sandy beach!"],["🌋","화산","Volcano","부글부글 화산!","Volcano!"],["🪨","돌","Rock","단단한 돌이에요!","Hard rock!"],["🌾","풀","Grass","살랑살랑 흔들려요!","Swaying grass!"]
+  ],
+  food: [
+    ["🍚","밥","Rice","냠냠 밥이에요!","Yummy rice!"],["🍗","닭고기","Chicken Leg","냠냠 맛있어요!","Yummy chicken!"],["🥪","샌드위치","Sandwich","한입 베어 물어요!","Take a bite!"],["🥣","수프","Soup","후후 불어요!","Warm soup!"],["🍤","새우튀김","Fried Shrimp","바삭바삭!","Crispy shrimp!"]
+  ],
+  body: [
+    ["😊","얼굴","Face","방긋 웃어요!","Smiling face!"],["🤲","손바닥","Palms","손바닥을 펴요!","Open palms!"],["🦱","머리카락","Hair","찰랑찰랑!","Soft hair!"],["🦷","치아","Teeth","이를 반짝 닦아요!","Clean teeth!"],["🦻","귀로 듣기","Hearing","소리를 들어요!","I can hear!"]
+  ],
+  home: [
+    ["🧺","바구니","Basket","쏙쏙 담아요!","Put it in!"],["🧹","빗자루","Broom","쓱싹쓱싹!","Sweep, sweep!"],["🧽","스펀지","Sponge","뽀득뽀득 닦아요!","Wipe, wipe!"],["🪞","거울","Mirror","내 얼굴이 보여요!","I see me!"],["💡","전등","Lamp","반짝 불이 켜져요!","Light on!"]
+  ],
+  shapes: [
+    ["➖","선","Line","쭉 그어요!","Straight line!"],["➰","고리","Loop","빙글 고리예요!","Loop-de-loop!"],["🔶","주황 마름모","Orange Diamond","반짝 마름모!","Orange diamond!"],["🔷","파란 마름모","Blue Diamond","파란 마름모!","Blue diamond!"],["⬛","검은 네모","Black Square","까만 네모!","Black square!"]
+  ]
+};
+
+categories.forEach(category => category.cards.push(...(extraCards[category.id] || [])));
+categories.push(
+  { id: "marine", names: ["해양 생물", "Sea Animals"], cover: "🐬", color: "#62d6f4", cards: [
+    ["🐬","돌고래","Dolphin","끼익, 돌고래가 뛰어요!","Dolphin jumps!"],["🐳","고래","Whale","푸우, 물을 뿜어요!","Whale spout!"],["🐋","큰고래","Blue Whale","아주 큰 고래예요!","Big blue whale!"],["🦈","상어","Shark","상어가 헤엄쳐요!","Shark swims!"],["🐟","물고기","Fish","뻐끔뻐끔!","Blub, blub!"],
+    ["🐠","열대어","Tropical Fish","알록달록 물고기!","Colorful fish!"],["🐡","복어","Pufferfish","빵빵 부풀어요!","Puff, puff!"],["🦀","게","Crab","집게 집게!","Pinch, pinch!"],["🦞","바닷가재","Lobster","큰 집게가 있어요!","Big claws!"],["🦐","새우","Shrimp","통통 새우예요!","Tiny shrimp!"],
+    ["🦑","오징어","Squid","쓩 헤엄쳐요!","Squid zooms!"],["🐙","문어","Octopus","다리가 여덟 개!","Eight arms!"],["🪼","해파리","Jellyfish","둥실둥실!","Float, float!"],["⭐","불가사리","Starfish","별처럼 생겼어요!","Starfish!"],["🐚","조개","Shell","조개가 반짝!","Pretty shell!"],
+    ["🪸","산호","Coral","바닷속 꽃 같아요!","Sea coral!"],["🐢","바다거북","Sea Turtle","느릿느릿 헤엄쳐요!","Slow turtle!"],["🦭","물범","Seal","통통 물범이에요!","Silly seal!"],["🐊","악어","Crocodile","입이 커요!","Snap, snap!"],["🦦","수달","Otter","물에서 놀아요!","Otter plays!"]
+  ]},
+  { id: "dinosaurs", names: ["공룡 친구들", "Dinosaurs"], cover: "🦖", color: "#9be27c", cards: [
+    ["🦖","티라노사우루스","Tyrannosaurus","어흥, 티라노!","T-rex roar!"],["🦕","브라키오사우루스","Brachiosaurus","목이 길어요!","Long neck!"],["🦕","브론토사우루스","Brontosaurus","쿵쿵 걸어요!","Stomp, stomp!"],["🦖","트리케라톱스","Triceratops","뿔이 세 개예요!","Three horns!"],["🦖","스테고사우루스","Stegosaurus","등에 판이 있어요!","Plates on back!"],
+    ["🦖","벨로키랍토르","Velociraptor","빠르게 달려요!","Fast raptor!"],["🦕","안킬로사우루스","Ankylosaurus","꼬리가 튼튼해요!","Strong tail!"],["🦖","파라사우롤로푸스","Parasaurolophus","머리에 볏이 있어요!","Crest on head!"],["🦕","스피노사우루스","Spinosaurus","등에 돛이 있어요!","Sail back!"],["🦖","프테라노돈","Pteranodon","하늘을 날아요!","Flying dino!"],
+    ["🦖","알로사우루스","Allosaurus","커다란 공룡!","Big dino!"],["🦕","디플로도쿠스","Diplodocus","꼬리가 길어요!","Long tail!"],["🦖","이구아노돈","Iguanodon","엄지 뿔이 있어요!","Thumb spike!"],["🦕","파키케팔로사우루스","Pachycephalosaurus","머리가 단단해요!","Hard head!"],["🦖","카르노타우루스","Carnotaurus","작은 뿔이 있어요!","Little horns!"],
+    ["🦕","공룡 알","Dinosaur Egg","알에서 톡톡!","Crack, crack!"],["🦖","아기 공룡","Baby Dinosaur","삐약 공룡 아기!","Baby dino!"],["🦕","초식 공룡","Plant-Eating Dinosaur","풀을 냠냠!","Munching plants!"],["🦖","육식 공룡","Meat-Eating Dinosaur","날카로운 이빨!","Sharp teeth!"],["🦴","공룡 화석","Dinosaur Fossil","뼈가 남았어요!","Dino fossil!"]
+  ]},
+  { id: "bugs", names: ["작은 벌레", "Bugs"], cover: "🐞", color: "#f6c66f", cards: [
+    ["🐞","무당벌레","Ladybug","점박이 무당벌레!","Ladybug spots!"],["🐝","벌","Bee","윙윙 꿀벌!","Buzz, buzz!"],["🦋","나비","Butterfly","팔랑팔랑!","Flutter!"],["🐛","애벌레","Caterpillar","꿈틀꿈틀!","Wiggle, wiggle!"],["🪲","딱정벌레","Beetle","반짝 딱정벌레!","Shiny beetle!"],
+    ["🦗","귀뚜라미","Cricket","귀뚤귀뚤!","Chirp, chirp!"],["🪳","바퀴벌레","Cockroach","슥슥 지나가요!","Scurry!"],["🕷️","거미","Spider","거미줄을 만들어요!","Spin a web!"],["🕸️","거미줄","Spider Web","동그란 거미줄!","Spider web!"],["🦂","전갈","Scorpion","꼬리가 올라가요!","Curly tail!"],
+    ["🦟","모기","Mosquito","앵앵 모기예요!","Bzz mosquito!"],["🪰","파리","Fly","윙윙 날아요!","Fly buzz!"],["🐜","개미","Ant","줄줄이 걸어요!","Ants march!"],["🪱","지렁이","Worm","꿈틀꿈틀!","Wiggle worm!"],["🪷","잠자리","Dragonfly","쓩 날아가요!","Dragonfly zooms!"],
+    ["🪳","하늘소","Longhorn Beetle","긴 더듬이가 있어요!","Long antennae!"],["🐌","달팽이","Snail","느릿느릿!","Slow snail!"],["🦠","미생물","Microbe","아주 작아요!","Tiny microbe!"],["🪲","풍뎅이","June Beetle","둥글둥글!","Round beetle!"],["🐾","벌레 발자국","Bug Tracks","작은 발자국!","Tiny tracks!"]
+  ]},
+  { id: "jobs", names: ["멋진 직업", "Jobs"], cover: "🧑‍🚒", color: "#ffadad", cards: [
+    ["🧑‍🚒","소방관","Firefighter","불을 꺼요!","Puts out fires!"],["👮","경찰관","Police Officer","도와줘요!","Helps people!"],["👩‍⚕️","의사","Doctor","아픈 곳을 봐요!","Doctor helps!"],["👨‍🍳","요리사","Chef","맛있게 만들어요!","Chef cooks!"],["👩‍🏫","선생님","Teacher","친절하게 알려줘요!","Teacher teaches!"],
+    ["👨‍🌾","농부","Farmer","채소를 길러요!","Farmer grows!"],["👷","건축가","Builder","뚝딱뚝딱 만들어요!","Builds things!"],["🧑‍🔧","정비사","Mechanic","고쳐줘요!","Fixes things!"],["🧑‍🔬","과학자","Scientist","실험해요!","Scientist tests!"],["🧑‍🚀","우주비행사","Astronaut","우주로 가요!","Goes to space!"],
+    ["🎨","화가","Painter","그림을 그려요!","Painter paints!"],["🎤","가수","Singer","노래해요!","Singer sings!"],["🎻","연주자","Musician","음악을 연주해요!","Plays music!"],["⚽","운동선수","Athlete","힘차게 뛰어요!","Runs fast!"],["🚚","배달원","Delivery Driver","물건을 가져와요!","Delivers things!"],
+    ["💇","미용사","Hairdresser","머리를 예쁘게 해요!","Cuts hair!"],["📚","사서","Librarian","책을 찾아줘요!","Finds books!"],["✈️","조종사","Pilot","비행기를 몰아요!","Pilot flies!"],["🚢","선장","Captain","배를 몰아요!","Captain sails!"],["🧑‍⚖️","판사","Judge","공정하게 말해요!","Judge listens!"]
+  ]},
+  { id: "emotions", names: ["마음 표현", "Feelings"], cover: "😊", color: "#f7a8d8", cards: [
+    ["😊","기뻐요","Happy","방긋 웃어요!","Happy smile!"],["😢","슬퍼요","Sad","눈물이 나요!","Feeling sad!"],["😡","화나요","Angry","씩씩 화가 나요!","Feeling angry!"],["😴","졸려요","Sleepy","하품이 나와요!","Sleepy yawn!"],["😮","놀라요","Surprised","와! 놀랐어요!","Surprised!"],
+    ["😋","맛있어요","Yummy","냠냠 맛있어요!","Yummy!"],["😨","무서워요","Scared","꼭 안아줘요!","Scared!"],["😍","좋아해요","Love","하트가 뿅!","Love it!"],["🤔","궁금해요","Curious","생각해봐요!","Thinking!"],["😆","신나요","Excited","하하 신나요!","So excited!"],
+    ["😌","편안해요","Calm","숨을 쉬어요!","Calm breath!"],["😤","씩씩해요","Brave","씩씩하게 해요!","Brave!"],["😳","부끄러워요","Shy","살짝 숨어요!","Feeling shy!"],["😭","울어요","Crying","엉엉 울어요!","Crying!"],["🥰","사랑해요","Loving","꼭 안아줘요!","Big love!"],
+    ["😄","웃겨요","Silly","깔깔 웃어요!","Silly laugh!"],["😐","괜찮아요","Okay","괜찮아요!","It's okay!"],["🤗","안아줘요","Hug","꼬옥 안아요!","Big hug!"],["😇","착해요","Kind","다정하게 해요!","Kind heart!"],["🥳","축하해요","Celebrating","짝짝 축하해요!","Hooray!"]
+  ]}
+);
+
+const copy = {
+  ko: { brand:"콩콩 카드", toggle:"English", full:"전체", wordOnly:"단어만", wordAndSound:"단어+설명", visualCute:"일러스트", visualPhoto:"실사 느낌", heroEyebrow:"누르고, 듣고, 놀아요!", heroTitle:"오늘은 무엇을<br><span>만나볼까요?</span>", heroNote:"마음에 드는 그림을 콕 눌러보세요.", hello:"안녕!", helloSpeech:"안녕! 오늘도 재미있게 놀아보자!", categoryTitle:"카드 골라보기", categoryCount:"15가지 놀이", cards:"장의 카드", quizTitle:"찾기 놀이", quizNote:"말해주는 그림을 찾아봐요!", reviewTitle:"틀린 카드 복습", reviewNote:"어려웠던 카드를 다시 만나요", installTitle:"앱으로 설치", installNote:"홈 화면에서 바로 열어요", cardHeading:"카드를 밀어봐요", tapHint:"그림을 콕!", sound:"🔊 다시 듣기", swipe:"↕ 카드를 아무 방향으로 밀어보세요 ↔", findEnd:"를 찾아주세요!", listen:"🔊 다시 듣기", correct:"참 잘했어요! ⭐", correctSpeech:"딩동댕! 참 잘했어요!", retry:"다시 한번 찾아볼까요?", categorySpeech:"카드를 눌러보세요.", settings:"보호자 설정", languageSetting:"학습 언어", categorySetting:"사용할 카테고리", save:"저장하고 시작", complete:"오늘의 카드 완료!", completeNote:"멋진 스티커를 받았어요.", finish:"다른 카드 만나기" },
+  en: { brand:"Kong Kong Cards", toggle:"한국어", full:"Full", wordOnly:"Word only", wordAndSound:"Word + sound", visualCute:"Cute art", visualPhoto:"Photo feel", heroEyebrow:"Tap, listen, and play!", heroTitle:"What shall we<br><span>meet today?</span>", heroNote:"Tap a picture you like.", hello:"Hello!", helloSpeech:"Hello! Let's have fun today!", categoryTitle:"Pick a Card", categoryCount:"15 fun worlds", cards:"cards", quizTitle:"Find It!", quizNote:"Find the picture you hear!", reviewTitle:"Review Cards", reviewNote:"Meet tricky cards again", installTitle:"Install App", installNote:"Open from the home screen", cardHeading:"Push the card", tapHint:"Tap me!", sound:"🔊 Hear it again", swipe:"↕ Push the card in any direction ↔", findEnd:"Find the ", listen:"🔊 Hear it again", correct:"Great job! ⭐", correctSpeech:"Great job!", retry:"Let's try again!", categorySpeech:"Tap the card.", settings:"Parent Settings", languageSetting:"Learning language", categorySetting:"Categories to use", save:"Save and start", complete:"Session complete!", completeNote:"You earned a new sticker.", finish:"Meet more cards" }
+};
+
+const $ = selector => document.querySelector(selector);
+const screens = [...document.querySelectorAll(".screen")];
+function loadSetting(key, fallback) {
+  try { return localStorage.getItem(key) || fallback; } catch (_) { return fallback; }
+}
+function saveSetting(key, value) {
+  try { localStorage.setItem(key, value); } catch (_) {}
+}
+function playAnimation(element, frames, options) {
+  if (element.animate) element.animate(frames, options);
+}
+
+let language = loadSetting("kongkong-language", "ko");
+let speechMode = loadSetting("kongkong-speech-mode", "full");
+let visualMode = loadSetting("kongkong-visual-mode", "cute");
+const sessionCount = 20;
+const savedEnabledCategories = loadSetting("kongkong-enabled-categories", "");
+let enabledIds = savedEnabledCategories ? JSON.parse(savedEnabledCategories) : categories.map(item => item.id);
+enabledIds = [...new Set([...enabledIds, "marine", "dinosaurs", "bugs", "jobs", "emotions"])];
+let mistakes = JSON.parse(loadSetting("kongkong-mistakes", "{}"));
+let stickers = JSON.parse(loadSetting("kongkong-stickers", "[]"));
+let currentCategory = categories[0], cardIndex = 0;
+let sessionCards = [];
+let viewedCards = 0;
+let sessionCompleted = false;
+let stars = Number(loadSetting("kongkong-stars", "0"));
+let drag = { active: false, pointerId: null, x: 0, y: 0, dx: 0, dy: 0 }, didSwipe = false;
+let quizAnswer = null, quizLocked = false;
+let availableVoices = [];
+let installPromptEvent = null;
+const langIndex = () => language === "ko" ? 0 : 1;
+const cardWord = card => card[language === "ko" ? 1 : 2];
+const cardSound = card => card[language === "ko" ? 3 : 4];
+const cardSlug = card => card[2].toLowerCase().replace(/ /g, "-");
+
+function refreshVoices() {
+  if ("speechSynthesis" in window) availableVoices = speechSynthesis.getVoices();
+}
+refreshVoices();
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = refreshVoices;
+
+function showScreen(id) {
+  screens.forEach(screen => screen.classList.toggle("active", screen.id === id));
+  $("#backButton").classList.toggle("hidden", id === "homeScreen");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function preferredVoice() {
+  const prefix = language === "ko" ? "ko" : "en";
+  const matching = availableVoices.filter(voice => voice.lang.toLowerCase().startsWith(prefix));
+  return matching.sort((a, b) => {
+    const score = voice => {
+      const name = voice.name.toLowerCase();
+      let value = 0;
+      if (/premium|enhanced|natural|neural|siri/.test(name)) value += 12;
+      if (/google|apple|microsoft/.test(name)) value += 5;
+      if (/compact|espeak/.test(name)) value -= 10;
+      if (voice.localService) value += 2;
+      return value;
+    };
+    return score(b) - score(a);
+  })[0];
+}
+function speak(text, pitch = 1.04) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = language === "ko" ? "ko-KR" : "en-US";
+  refreshVoices();
+  const voice = preferredVoice();
+  if (voice) utterance.voice = voice;
+  utterance.rate = language === "ko" ? .92 : .88;
+  utterance.pitch = pitch;
+  utterance.volume = 1;
+  speechSynthesis.resume();
+  speechSynthesis.speak(utterance);
+}
+function speakCard(card) {
+  const word = cardWord(card);
+  const sound = cardSound(card);
+  const mode = speechMode === "word" ? "word" : "full";
+  const file = `audio/${language}/${encodeURIComponent(cardSlug(card))}-${mode}.mp3`;
+  const audio = new Audio(file);
+  audio.play().catch(() => speak(mode === "word" ? word : `${word}! ${sound}`, 1.03));
+}
+function unlockSpeech() {
+  if (!("speechSynthesis" in window)) return;
+  const unlock = new SpeechSynthesisUtterance(" ");
+  unlock.volume = 0;
+  speechSynthesis.speak(unlock);
+}
+function shuffled(cards) {
+  const result = cards.slice();
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+function applyLanguage() {
+  const t = copy[language];
+  document.documentElement.lang = language;
+  $("#brandText").textContent = t.brand; $("#languageButton").textContent = t.toggle;
+  $("#fullscreenButton").textContent = `⛶ ${t.full}`;
+  $("#speechModeButton").textContent = speechMode === "word" ? `🔤 ${t.wordOnly}` : `🔊 ${t.wordAndSound}`;
+  $("#visualModeButton").textContent = visualMode === "photo" ? `📷 ${t.visualPhoto}` : `🎨 ${t.visualCute}`;
+  $("#heroEyebrow").textContent = t.heroEyebrow; $("#heroTitle").innerHTML = t.heroTitle; $("#heroNote").textContent = t.heroNote;
+  $("#buddyWave").textContent = t.hello; $("#categoryTitle").textContent = t.categoryTitle; $("#categoryCount").textContent = t.categoryCount;
+  $("#quizBannerTitle").textContent = t.quizTitle; $("#quizBannerNote").textContent = t.quizNote; $("#cardHeading").textContent = t.cardHeading;
+  $("#installTitle").textContent = t.installTitle; $("#installNote").textContent = t.installNote;
+  $("#tapHint").textContent = t.tapHint; $("#soundButton").textContent = t.sound; $("#swipeHint").textContent = t.swipe;
+  $("#quizEyebrow").textContent = t.quizTitle; $("#listenPrompt").textContent = t.listen;
+  $("#reviewTitle").textContent = t.reviewTitle; $("#reviewNote").textContent = t.reviewNote;
+  $("#settingsTitle").textContent = t.settings; $("#languageSettingLabel").textContent = t.languageSetting;
+  $("#categorySettingLabel").textContent = t.categorySetting;
+  $("#saveSettings").textContent = t.save; $("#completionTitle").textContent = t.complete;
+  $("#completionNote").textContent = t.completeNote; $("#finishSession").textContent = t.finish;
+  renderCategories(); renderCard();
+  renderSettings();
+  if (quizAnswer) renderQuizPrompt();
+}
+function addStar() {
+  stars++; saveSetting("kongkong-stars", stars); $("#starCount").textContent = stars;
+  $("#celebration").classList.remove("show"); void $("#celebration").offsetWidth; $("#celebration").classList.add("show");
+  setTimeout(() => $("#celebration").classList.remove("show"), 850);
+}
+function renderCategories() {
+  $("#categoryGrid").innerHTML = categories.map((category, index) => enabledIds.includes(category.id) ? `<button class="category-card" data-index="${index}" style="background:${category.color}"><span class="category-emoji">${category.cover}</span><span><strong class="category-name">${category.names[langIndex()]}</strong><br><small>${sessionCount} ${copy[language].cards}</small></span></button>` : "").join("");
+}
+function openCategory(index) {
+  currentCategory = categories[index]; sessionCards = shuffled(currentCategory.cards).slice(0, sessionCount); cardIndex = 0; viewedCards = 1; $("#cardTotal").textContent = sessionCards.length;
+  sessionCompleted = false; renderCard(); showScreen("cardScreen");
+  speak(`${currentCategory.names[langIndex()]}. ${copy[language].categorySpeech}`);
+}
+function cardVisual(card, className = "card-emoji") {
+  if (visualMode !== "photo") return card[0];
+  const src = `images/photo/${encodeURIComponent(cardSlug(card))}.jpg`;
+  return `<span class="photo-visual"><img src="${src}" alt="${cardWord(card)}" onerror="this.remove()"><span class="photo-emoji">${card[0]}</span></span>`;
+}
+function renderCard(direction = { x: 0, y: 0 }) {
+  if (!sessionCards.length) sessionCards = shuffled(currentCategory.cards).slice(0, 15);
+  const cardData = sessionCards[cardIndex], card = $("#flashcard");
+  card.style.background = currentCategory.color;
+  card.classList.toggle("photo-mode", visualMode === "photo");
+  card.classList.remove("dragging");
+  card.style.transform = "";
+  playAnimation(card, [{ transform:`translate(${direction.x * 24}px, ${direction.y * 24}px) scale(.96)` },{ transform:"translate(0, 0) scale(1)" }], { duration:220 });
+  $("#categoryLabel").textContent = currentCategory.names[langIndex()]; $("#cardEmoji").innerHTML = cardVisual(cardData);
+  $("#cardWord").textContent = cardWord(cardData); $("#cardSound").textContent = cardSound(cardData); $("#cardPosition").textContent = cardIndex + 1;
+  $("#dots").innerHTML = sessionCards.map((_, i) => `<span class="dot ${i === cardIndex ? "active" : ""}"></span>`).join("");
+  $("#cardStack").innerHTML = [3, 2, 1].map(offset => {
+    const next = sessionCards[(cardIndex + offset) % sessionCards.length];
+    const stackVisual = visualMode === "photo" ? cardVisual(next, "stack-emoji") : `<span class="stack-emoji">${next[0]}</span>`;
+    return `<span class="stack-card" style="background:${currentCategory.color}" title="${cardWord(next)}">${stackVisual}<strong>${cardWord(next)}</strong></span>`;
+  }).join("");
+}
+function nextCard(direction = { x: 1, y: 0 }) {
+  cardIndex = (cardIndex + 1) % sessionCards.length; renderCard(direction);
+  speakCard(sessionCards[cardIndex]);
+  viewedCards++;
+}
+function showCompletion() {
+  if (sessionCompleted) return;
+  sessionCompleted = true;
+  const rewards = ["🌟","🏅","🌈","🚀","🦄","🎈","👑","💛","🍭","🏆"];
+  const earned = rewards[Math.floor(Math.random() * rewards.length)];
+  stickers.push(earned); stickers = stickers.slice(-30); saveSetting("kongkong-stickers", JSON.stringify(stickers));
+  $("#earnedSticker").textContent = earned; $("#stickerShelf").textContent = stickers.join(" ");
+  $("#completionModal").classList.add("show"); $("#completionModal").setAttribute("aria-hidden", "false");
+  speak(copy[language].complete);
+}
+function startReview() {
+  const allCards = categories.flatMap(category => category.cards);
+  const difficult = allCards.filter(card => mistakes[card[0]]).sort((a, b) => mistakes[b[0]] - mistakes[a[0]]);
+  if (!difficult.length) { startQuiz(); return; }
+  currentCategory = { names:[copy.ko.reviewTitle, copy.en.reviewTitle], color:"#a9d7c5", cards:difficult };
+  const weighted = difficult.flatMap(card => Array(Math.min(3, mistakes[card[0]])).fill(card));
+  sessionCards = shuffled(weighted).slice(0, Math.min(sessionCount, weighted.length)); cardIndex = 0; viewedCards = 1;
+  $("#cardTotal").textContent = sessionCards.length; sessionCompleted = false; renderCard(); showScreen("cardScreen"); speakCard(sessionCards[0]);
+}
+function renderQuizPrompt() {
+  $("#quizPrompt").textContent = language === "ko" ? `${cardWord(quizAnswer.card)}${copy.ko.findEnd}` : `${copy.en.findEnd}${cardWord(quizAnswer.card)}!`;
+}
+function startQuiz() {
+  const pool = categories.flatMap(category => category.cards.map(card => ({ card, color: category.color })));
+  quizAnswer = pool[Math.floor(Math.random() * pool.length)];
+  const choices = [quizAnswer];
+  while (choices.length < 4) { const choice = pool[Math.floor(Math.random() * pool.length)]; if (!choices.some(item => item.card[0] === choice.card[0])) choices.push(choice); }
+  choices.sort(() => Math.random() - .5); quizLocked = false; renderQuizPrompt(); $("#quizFeedback").textContent = "";
+  $("#quizGrid").innerHTML = choices.map(item => `<button class="quiz-choice" data-emoji="${item.card[0]}" aria-label="${cardWord(item.card)}">${item.card[0]}</button>`).join("");
+  showScreen("quizScreen"); setTimeout(() => speak($("#quizPrompt").textContent), 250);
+}
+function answerQuiz(button) {
+  if (quizLocked) return;
+  if (button.dataset.emoji === quizAnswer.card[0]) {
+    if (mistakes[quizAnswer.card[0]]) {
+      mistakes[quizAnswer.card[0]] = Math.max(0, mistakes[quizAnswer.card[0]] - 1);
+      saveSetting("kongkong-mistakes", JSON.stringify(mistakes));
+    }
+    quizLocked = true; button.classList.add("correct"); $("#quizFeedback").textContent = copy[language].correct; speak(copy[language].correctSpeech); addStar(); setTimeout(startQuiz, 1500);
+  } else {
+    mistakes[quizAnswer.card[0]] = (mistakes[quizAnswer.card[0]] || 0) + 1;
+    saveSetting("kongkong-mistakes", JSON.stringify(mistakes));
+    button.classList.add("wrong"); $("#quizFeedback").textContent = copy[language].retry; speak(copy[language].retry); setTimeout(() => button.classList.remove("wrong"), 400);
+  }
+}
+function renderSettings() {
+  document.querySelectorAll(".setting-choice").forEach(button => button.classList.toggle("selected", button.dataset.language === language));
+  $("#categorySettings").innerHTML = categories.map(item => `<button class="category-toggle ${enabledIds.includes(item.id) ? "selected" : ""}" data-id="${item.id}">${item.cover} ${item.names[langIndex()]}</button>`).join("");
+}
+function toggleModal(id, show) {
+  $(id).classList.toggle("show", show); $(id).setAttribute("aria-hidden", String(!show));
+}
+
+$("#starCount").textContent = stars; applyLanguage();
+$("#languageButton").addEventListener("click", () => { language = language === "ko" ? "en" : "ko"; saveSetting("kongkong-language", language); applyLanguage(); });
+$("#visualModeButton").addEventListener("click", () => { visualMode = visualMode === "photo" ? "cute" : "photo"; saveSetting("kongkong-visual-mode", visualMode); applyLanguage(); });
+$("#fullscreenButton").addEventListener("click", async () => {
+  try {
+    if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(() => {});
+  } catch (_) {}
+});
+$("#speechModeButton").addEventListener("click", () => { speechMode = speechMode === "word" ? "full" : "word"; saveSetting("kongkong-speech-mode", speechMode); applyLanguage(); speakCard(sessionCards[cardIndex] || currentCategory.cards[0]); });
+$("#categoryGrid").addEventListener("click", event => { const button = event.target.closest(".category-card"); if (button) openCategory(Number(button.dataset.index)); });
+$("#backButton").addEventListener("click", () => showScreen("homeScreen")); $("#brand").addEventListener("click", () => showScreen("homeScreen"));
+$("#heroBuddy").addEventListener("click", () => { speak(copy[language].helloSpeech); playAnimation($("#heroBuddy"), [{transform:"rotate(3deg)"},{transform:"rotate(-8deg) scale(1.08)"},{transform:"rotate(3deg)"}],{duration:550}); });
+$("#startQuiz").addEventListener("click", startQuiz);
+$("#startReview").addEventListener("click", startReview);
+$("#installApp").addEventListener("click", async () => {
+  if (installPromptEvent) {
+    installPromptEvent.prompt();
+    await installPromptEvent.userChoice.catch(() => {});
+    installPromptEvent = null;
+    $("#installApp").classList.add("hidden-install");
+  } else {
+    speak(language === "ko" ? "브라우저 메뉴에서 홈 화면에 추가를 눌러주세요." : "Use the browser menu and choose Add to Home Screen.");
+  }
+});
+$("#settingsButton").addEventListener("click", () => toggleModal("#settingsModal", true));
+$("#closeSettings").addEventListener("click", () => toggleModal("#settingsModal", false));
+document.querySelectorAll(".setting-choice").forEach(button => button.addEventListener("click", () => { language = button.dataset.language; renderSettings(); }));
+$("#categorySettings").addEventListener("click", event => {
+  const button = event.target.closest(".category-toggle"); if (!button) return;
+  enabledIds = enabledIds.includes(button.dataset.id) ? enabledIds.filter(id => id !== button.dataset.id) : [...enabledIds, button.dataset.id];
+  if (!enabledIds.length) enabledIds = [button.dataset.id]; renderSettings();
+});
+$("#saveSettings").addEventListener("click", () => {
+  saveSetting("kongkong-language", language);
+  saveSetting("kongkong-enabled-categories", JSON.stringify(enabledIds)); toggleModal("#settingsModal", false); applyLanguage(); showScreen("homeScreen");
+});
+$("#finishSession").addEventListener("click", () => { toggleModal("#completionModal", false); showScreen("homeScreen"); });
+$("#flashcard").addEventListener("click", () => { if (didSwipe) { didSwipe = false; return; } const data = sessionCards[cardIndex]; speakCard(data); playAnimation($("#cardEmoji"), [{transform:"scale(1)"},{transform:"scale(1.16) rotate(4deg)"},{transform:"scale(1)"}],{duration:450}); });
+$("#flashcard").addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") $("#flashcard").click(); if (event.key.startsWith("Arrow")) nextCard(); });
+$("#flashcard").addEventListener("pointerdown", event => {
+  event.preventDefault();
+  unlockSpeech(); drag = { active:true, pointerId:event.pointerId, x:event.clientX, y:event.clientY, dx:0, dy:0 }; didSwipe = false;
+  $("#flashcard").classList.add("dragging"); $("#flashcard").setPointerCapture?.(event.pointerId);
+});
+$("#flashcard").addEventListener("pointermove", event => {
+  if (!drag.active || event.pointerId !== drag.pointerId) return;
+  event.preventDefault();
+  drag.dx = event.clientX - drag.x; drag.dy = event.clientY - drag.y;
+  const tilt = Math.max(-8, Math.min(8, drag.dx / 18));
+  $("#flashcard").style.transform = `translate3d(${drag.dx}px, ${drag.dy}px, 0) rotate(${tilt}deg) scale(.98)`;
+});
+function finishDrag(event) {
+  if (!drag.active || event.pointerId !== drag.pointerId) return;
+  drag.active = false;
+  const distance = Math.hypot(drag.dx, drag.dy);
+  const direction = { x: Math.sign(drag.dx) || 1, y: Math.sign(drag.dy) };
+  $("#flashcard").classList.remove("dragging"); $("#flashcard").style.transform = "";
+  if (distance > 42) { didSwipe = true; nextCard(direction); }
+}
+$("#flashcard").addEventListener("pointerup", finishDrag);
+$("#flashcard").addEventListener("pointercancel", finishDrag);
+document.addEventListener("contextmenu", event => event.preventDefault());
+document.addEventListener("dblclick", event => event.preventDefault());
+$("#listenPrompt").addEventListener("click", () => speak($("#quizPrompt").textContent));
+$("#quizGrid").addEventListener("click", event => { const button = event.target.closest(".quiz-choice"); if (button) answerQuiz(button); });
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("service-worker.js");
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  installPromptEvent = event;
+  $("#installApp").classList.remove("hidden-install");
+});
+window.addEventListener("appinstalled", () => $("#installApp").classList.add("hidden-install"));
+
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
