@@ -1,12 +1,12 @@
 {
   "name": "콩콩 카드 놀이터",
   "short_name": "콩콩 카드",
-  "description": "아이를 위한 한국어·영어 플래시카드 놀이",
+  "description": "아이를 위한 한국어·영어 그림 카드 놀이",
   "start_url": "./index.html",
   "display": "fullscreen",
   "orientation": "portrait",
-  "background_color": "#fff8e9",
-  "theme_color": "#ff805d",
+  "background_color": "#fff2f8",
+  "theme_color": "#ff8fc0",
   "icons": [
     {
       "src": "icons/icon.svg",
