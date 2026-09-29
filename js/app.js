@@ -50,7 +50,7 @@ const T = {
     stickerTitle: "내 스티커북", stickerNote: n => `모은 스티커 ${n}개! 카드를 끝까지 보면 스티커를 받아요.`,
     bubbleCheer: "비눗방울 열 개! 별을 받았어요!", quizSticker: "다섯 번 맞혀서 스티커를 받았어요!",
     holdGear: "보호자는 ⚙️를 꾹 눌러 주세요", fullscreen: "⛶ 전체 화면", install: "📲 앱으로 설치", reset: "별·스티커 초기화",
-    resetConfirm: "별과 스티커, 틀린 기록을 모두 지울까요?", save: "닫기", installHelp: "브라우저 메뉴에서 '홈 화면에 추가'를 눌러 주세요.",
+    resetConfirm: "한 번 더 누르면 지워요", save: "닫기", installHelp: "브라우저 메뉴에서 '홈 화면에 추가'를 눌러 주세요.",
     categoryIntro: n => `${n}! 카드를 잘 보세요.`
   },
   en: {
@@ -69,7 +69,7 @@ const T = {
     stickerTitle: "My Sticker Book", stickerNote: n => `${n} stickers! Finish a card set to get one.`,
     bubbleCheer: "Ten bubbles! You got a star!", quizSticker: "Five right answers! Here is a sticker!",
     holdGear: "Parents: press and hold ⚙️", fullscreen: "⛶ Fullscreen", install: "📲 Install app", reset: "Reset stars & stickers",
-    resetConfirm: "Clear all stars, stickers and review history?", save: "Close", installHelp: "Use the browser menu and choose 'Add to Home Screen'.",
+    resetConfirm: "Tap again to clear", save: "Close", installHelp: "Use the browser menu and choose 'Add to Home Screen'.",
     categoryIntro: n => `${n}! Look at the cards.`
   }
 };
@@ -87,7 +87,7 @@ function josa(word, withFinal, withoutFinal) {
 const $ = sel => document.querySelector(sel);
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
 const emojiKey = e => [...e].map(ch => ch.codePointAt(0).toString(16)).filter(cp => cp !== "fe0f").join("-");
-const emojiSrc = e => `img/emoji/${emojiKey(e)}.webp`;
+const emojiSrc = e => (window.EMOJI_DATA && window.EMOJI_DATA[emojiKey(e)]) || `img/emoji/${emojiKey(e)}.webp`;
 function emojiImg(e, cls = "art", alt = "") {
   return `<img class="${cls}" src="${emojiSrc(e)}" alt="${esc(alt)}" draggable="false" data-emoji="${esc(e)}" onerror="kkFallback(this)">`;
 }
@@ -711,8 +711,16 @@ function toggleModal(id, show) { $(id).classList.toggle("show", show); $(id).set
 })();
 $("#closeSettings").addEventListener("click", () => toggleModal("#settingsModal", false));
 $("#saveSettings").addEventListener("click", () => { toggleModal("#settingsModal", false); if (currentScreen === "homeScreen") renderHome(); });
+// confirm()이 막힌 환경이 있어 두 번 눌러 확인
+let resetArmed = 0;
 $("#resetProgress").addEventListener("click", () => {
-  if (!confirm(t("resetConfirm"))) return;
+  const btn = $("#resetProgress");
+  if (Date.now() - resetArmed > 3000) {
+    resetArmed = Date.now(); btn.textContent = t("resetConfirm");
+    setTimeout(() => { if (Date.now() - resetArmed >= 3000) btn.textContent = t("reset"); }, 3100);
+    return;
+  }
+  resetArmed = 0; btn.textContent = t("reset"); toast("✓");
   stars = 0; stickers = {}; mistakes = {}; quizStreak = 0;
   store.set("stars", 0); store.set("stickers", {}); store.set("mistakes", {}); store.set("quizStreak", 0);
   updateStars(); renderHome();
@@ -785,4 +793,4 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) stopS
 
 updateStars();
 applyLanguage();
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("service-worker.js");
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("service-worker.js").catch(() => {});
