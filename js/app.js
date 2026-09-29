@@ -303,7 +303,7 @@ function showScreen(id) {
   screens.forEach(s => s.classList.toggle("active", s.id === id));
   $("#backButton").classList.toggle("hidden", id === "homeScreen");
   window.scrollTo({ top: 0, behavior: "smooth" });
-  if (id === "homeScreen") { stopSpeech(); renderHome(); }
+  if (id === "homeScreen") { stopSpeech(); renderHome(); setTimeout(() => updater.applyIfIdle(), 600); }
 }
 
 function applyLanguage() {
@@ -692,7 +692,10 @@ $("#categorySettings").addEventListener("click", e => {
   store.set("enabled", enabledIds);
   renderSettings(); renderHome();
 });
-function toggleModal(id, show) { $(id).classList.toggle("show", show); $(id).setAttribute("aria-hidden", String(!show)); }
+function toggleModal(id, show) {
+  $(id).classList.toggle("show", show); $(id).setAttribute("aria-hidden", String(!show));
+  if (!show) setTimeout(() => updater.applyIfIdle(), 600);
+}
 
 // 톱니바퀴: 아이가 실수로 열지 않도록 1.2초 꾹 누르기
 (() => {
@@ -789,8 +792,44 @@ $("#heroBuddy").addEventListener("click", () => {
 
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("dblclick", e => e.preventDefault());
-document.addEventListener("visibilitychange", () => { if (document.hidden) stopSpeech(); });
+
 
 updateStars();
 applyLanguage();
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("service-worker.js").catch(() => {});
+/* ---------- 자동 업데이트 ----------
+   설치된 앱은 메모리에 오래 남아 있으므로, 다시 열 때 앱 파일이 바뀌었는지 확인하고
+   바뀌었으면 홈 화면에 있을 때(놀이 중이 아닐 때) 조용히 새로고침합니다. */
+const updater = (() => {
+  const FILES = ["js/app.js", "js/cards.js", "css/style.css"];
+  let baseline = null, pending = false, hiddenAt = 0;
+  const enabled = location.protocol.startsWith("http") && !window.EMOJI_DATA;
+  async function fingerprint() {
+    const texts = await Promise.all(FILES.map(f => fetch(f, { cache: "no-store" }).then(r => r.ok ? r.text() : Promise.reject())));
+    let h = 0;
+    for (const ch of texts.join("|")) h = (h * 31 + ch.charCodeAt(0)) | 0;
+    return h;
+  }
+  function busy() {
+    return currentScreen !== "homeScreen" || document.querySelector(".modal-overlay.show");
+  }
+  function applyIfIdle() { if (pending && !busy()) location.reload(); }
+  async function check() {
+    if (!enabled || !navigator.onLine) return;
+    try {
+      const now = await fingerprint();
+      if (baseline === null) { baseline = now; return; }
+      if (now !== baseline) { pending = true; applyIfIdle(); }
+    } catch (_) {}
+  }
+  if (enabled) setTimeout(check, 3000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { hiddenAt = Date.now(); stopSpeech(); return; }
+    if (Date.now() - hiddenAt > 30000) check();
+  });
+  return { applyIfIdle };
+})();
+if (!window.EMOJI_DATA && "serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  navigator.serviceWorker.register("service-worker.js").then(reg => {
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
+  }).catch(() => {});
+}
