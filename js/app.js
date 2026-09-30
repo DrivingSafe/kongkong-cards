@@ -8,7 +8,7 @@ const store = {
   set(key, value) { try { localStorage.setItem("kk2-" + key, JSON.stringify(value)); } catch (_) {} }
 };
 
-const DEFAULTS = { language: "ko", speech: "full", pace: "normal", tapFirst: false, sessionSize: 10, sfx: true };
+const DEFAULTS = { language: "ko", speech: "full", pace: "normal", tapFirst: false, sessionSize: 10, sfx: true, motion: true };
 const PACE_MS = { slow: 5000, normal: 3000, fast: 1500 };
 const settings = Object.assign({}, DEFAULTS, store.get("settings", {}));
 let stars = store.get("stars", null);
@@ -91,6 +91,16 @@ const emojiSrc = e => (window.EMOJI_DATA && window.EMOJI_DATA[emojiKey(e)]) || `
 function emojiImg(e, cls = "art", alt = "") {
   return `<img class="${cls}" src="${emojiSrc(e)}" alt="${esc(alt)}" draggable="false" data-emoji="${esc(e)}" onerror="kkFallback(this)">`;
 }
+// 움직이는 3D 그림: 정지 그림을 먼저 보여 주고, 움직이는 그림이 다 받아지면 바꿔 끼움
+const ANIM_OK = !window.EMOJI_DATA;
+function animate(img) {
+  if (!ANIM_OK || !settings.motion || !img || !img.dataset || !img.dataset.emoji) return;
+  const src = `img/anim/${emojiKey(img.dataset.emoji)}.webp`;
+  const pre = new Image();
+  pre.onload = () => { if (img.isConnected || img.id) img.src = src; };
+  pre.src = src;
+}
+function animateIn(root) { root && root.querySelectorAll("img.art, img.anim").forEach(animate); }
 window.kkFallback = img => {
   const span = document.createElement("span");
   span.className = "emoji-fallback";
@@ -377,7 +387,7 @@ function renderCard(animate = true) {
   el.style.background = card.cat.color;
   $("#categoryIcon").src = emojiSrc(session.icon);
   $("#categoryLabel").textContent = session.title[uiLang() === "en" ? 1 : 0];
-  if (animate || !$("#cardArt").innerHTML) $("#cardArt").innerHTML = cardVisual(card);
+  if (animate || !$("#cardArt").innerHTML) { $("#cardArt").innerHTML = cardVisual(card); animateIn($("#cardArt")); }
   const main = settings.language === "en" ? card.en : card.ko;
   $("#cardWord").textContent = main;
   $("#cardWord").classList.toggle("long", main.length > 6);
@@ -476,7 +486,7 @@ function finishSession() {
   store.set("mistakes", mistakes);
   const e = giveSticker();
   addStar();
-  $("#earnedSticker").src = emojiSrc(e);
+  $("#earnedSticker").src = emojiSrc(e); $("#earnedSticker").dataset.emoji = e; animate($("#earnedSticker"));
   toggleModal("#completionModal", true);
   sfx.fanfare(); confetti(28);
   sayText(t("completeSpeech"));
@@ -565,6 +575,7 @@ function answerQuiz(btn) {
   if (btn.dataset.key === a.key) {
     quiz.locked = true;
     btn.classList.add("correct");
+    animateIn(btn);
     document.querySelectorAll(".quiz-choice").forEach(b => { if (b !== btn) b.classList.add("dim"); });
     if (mistakes[a.key]) { mistakes[a.key]--; store.set("mistakes", mistakes); }
     $("#quizFeedback").textContent = t("correctText");
@@ -574,7 +585,7 @@ function answerQuiz(btn) {
     say([{ text: pick(t("correct")), lang: uiLang() }, ...cardSpeech(a, false)], () => {
       if (bonus) {
         const e = giveSticker();
-        $("#earnedSticker").src = emojiSrc(e);
+        $("#earnedSticker").src = emojiSrc(e); $("#earnedSticker").dataset.emoji = e; animate($("#earnedSticker"));
         $("#completionTitle").textContent = t("quizSticker");
         $("#completionNote").textContent = "";
         quiz.bonus = true;
@@ -665,7 +676,9 @@ const SETTING_ROWS = [
   { key: "tapFirst", label: ["그림을 눌러야 넘어가기", "Tap picture before next"], options: [[true, ["켜기", "On"]], [false, ["끄기", "Off"]]],
     desc: ["넘기기 전에 그림을 한 번 콕 눌러야 해요. 스와이프만 하는 아이에게 좋아요.", "Child must tap the picture once before moving on."] },
   { key: "sessionSize", label: ["한 번에 보는 카드 수", "Cards per session"], options: [[5, "5"], [10, "10"], [15, "15"]] },
-  { key: "sfx", label: ["효과음", "Sound effects"], options: [[true, ["켜기", "On"]], [false, ["끄기", "Off"]]] }
+  { key: "sfx", label: ["효과음", "Sound effects"], options: [[true, ["켜기", "On"]], [false, ["끄기", "Off"]]] },
+  { key: "motion", label: ["움직이는 그림", "Animated pictures"], options: [[true, ["켜기", "On"]], [false, ["끄기", "Off"]]],
+    desc: ["카드 그림이 살아 움직여요. 데이터를 아끼려면 꺼 주세요.", "Card pictures move. Turn off to save data."] }
 ];
 function renderSettings() {
   const li = uiLang() === "en" ? 1 : 0;
