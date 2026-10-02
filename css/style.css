@@ -92,7 +92,7 @@ h1, h2, h3, p { margin: 0; font-weight: normal; }
 @keyframes bump { 40% { transform: scale(1.25) rotate(-6deg); } }
 
 /* 화면 전환 */
-.screen { display: none; }
+.screen { display: none; overflow-x: clip; }
 .screen.active { display: block; animation: enter .35s ease both; }
 @keyframes enter { from { opacity: 0; transform: translateY(12px) scale(.99); } }
 
@@ -134,7 +134,7 @@ h1 span { color: var(--pink-deep); }
 .category-card::before {
   content: ""; position: absolute; inset: 7px; border: 2px dashed rgba(255,255,255,.9); border-radius: 20px; pointer-events: none;
 }
-.category-card img { width: 58%; height: auto; aspect-ratio: 1; filter: drop-shadow(0 5px 0 rgba(107,58,94,.12)); transition: transform .2s; }
+.category-card img { width: 64%; height: auto; aspect-ratio: 1; filter: drop-shadow(0 5px 0 rgba(107,58,94,.12)); transition: transform .2s; }
 .category-card .cat-name { font-size: clamp(16px, 4.2vw, 21px); white-space: nowrap; text-align: center; line-height: 1.15; }
 .category-card:hover img { transform: scale(1.06) rotate(-3deg); }
 
@@ -159,14 +159,20 @@ h1 span { color: var(--pink-deep); }
 .progress-hearts span.now { color: var(--pink-deep); transform: scale(1.35); }
 
 .flashcard-wrap { position: relative; display: flex; justify-content: center; margin: 14px 0 8px; padding-bottom: 14px; }
-.card-stack { position: absolute; top: 0; left: 50%; width: var(--card-w); aspect-ratio: .82; transform: translateX(-50%); pointer-events: none; }
+.card-stack { position: absolute; top: 0; left: 50%; width: var(--card-w); height: var(--card-h); transform: translateX(-50%); pointer-events: none; }
 .card-stack span { position: absolute; inset: 0; border: var(--line); border-radius: 38px; background: var(--pink-soft); }
 .card-stack span:nth-child(1) { transform: translate(-10px, 16px) rotate(-3.5deg); background: var(--lavender); }
 .card-stack span:nth-child(2) { transform: translate(9px, 9px) rotate(2.5deg); background: var(--peach); }
-.flashcard-wrap { --card-w: min(84vw, 460px, 56vh); }
+/* 카드 크기: 폭은 화면의 88%(최대 720px), 높이는 위·아래 버튼을 뺀 남는 공간을 모두 사용.
+   너무 길쭉해지지 않도록 폭의 1.45배까지만 늘림 */
+.flashcard-wrap {
+  --chrome: 300px;
+  --card-w: min(88vw, 720px, calc((100dvh - var(--chrome)) * .98));
+  --card-h: clamp(calc(var(--card-w) * .9), calc(100dvh - var(--chrome)), calc(var(--card-w) * 1.45));
+}
 
 .flashcard {
-  position: relative; z-index: 2; width: var(--card-w); aspect-ratio: .82;
+  position: relative; z-index: 2; width: var(--card-w); height: var(--card-h);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   padding: 18px 16px 22px; background: var(--pink-soft); border: 4px solid var(--ink); border-radius: 38px;
   box-shadow: 0 12px 0 var(--ink); overflow: hidden; touch-action: none; outline: none;
@@ -187,18 +193,20 @@ h1 span { color: var(--pink-deep); }
 .card-sparkles span:nth-child(3) { bottom: 9%; right: 13%; animation-delay: -1.6s; font-size: 20px; }
 @keyframes twinkle { 50% { transform: scale(.6) rotate(20deg); opacity: .35; } }
 
-.card-art { width: 76%; aspect-ratio: 1; display: grid; place-items: center; position: relative; }
+.card-art { width: min(88%, calc(var(--card-h) * .56)); aspect-ratio: 1; display: grid; place-items: center; position: relative; }
 .card-art > img.art { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 0 rgba(107,58,94,.14)); animation: pop-in .45s cubic-bezier(.2,.9,.3,1.4) both; }
 .card-art .emoji-fallback { font-size: calc(var(--card-w) * .45); line-height: 1; }
 .card-art.boing > * { animation: boing .6s ease; }
 @keyframes pop-in { from { transform: scale(.4) rotate(-10deg); opacity: 0; } }
 @keyframes boing { 30% { transform: scale(1.14, .88); } 55% { transform: scale(.94, 1.08) translateY(-10px); } 80% { transform: scale(1.03, .97); } }
 
-.flashcard h3 { font-size: clamp(34px, calc(var(--card-w) * .12), 56px); line-height: 1.1; margin-top: 4px; text-shadow: 0 3px 0 #fff; text-align: center; }
-.flashcard h3.long { font-size: clamp(26px, calc(var(--card-w) * .085), 40px); }
-.card-sub { font-size: 22px; color: var(--pink-deep); min-height: 0; }
+.flashcard h3 { font-size: clamp(36px, calc(var(--card-w) * .14), 76px); line-height: 1.1; margin-top: 4px; text-shadow: 0 3px 0 #fff; text-align: center; }
+.flashcard h3.long { font-size: clamp(28px, calc(var(--card-w) * .1), 54px); }
+.card-sub { font-size: clamp(22px, calc(var(--card-w) * .06), 32px); }
+.card-sound { font-size: clamp(19px, calc(var(--card-w) * .052), 28px); }
+.card-sub { color: var(--pink-deep); min-height: 0; }
 .card-sub:empty { display: none; }
-.card-sound { font-size: 19px; color: var(--ink-soft); text-align: center; min-height: 24px; padding: 0 10px; }
+.card-sound { color: var(--ink-soft); text-align: center; min-height: 24px; padding: 0 10px; }
 
 .tap-finger { position: absolute; z-index: 3; right: 16%; bottom: 36%; width: 58px; opacity: 0; pointer-events: none; }
 .tap-finger img { width: 100%; }
@@ -212,10 +220,10 @@ h1 span { color: var(--pink-deep); }
 }
 .nudge.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-.card-controls { display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px; width: min(100%, 460px); margin: 18px auto 0; }
+.card-controls { display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px; width: min(100%, 560px); margin: 18px auto 0; }
 .ctrl-btn {
-  position: relative; height: 64px; display: flex; align-items: center; justify-content: center; gap: 8px; overflow: hidden;
-  border: var(--line); border-radius: 100px; box-shadow: 0 5px 0 var(--ink); font-size: 21px;
+  position: relative; height: 68px; display: flex; align-items: center; justify-content: center; gap: 8px; overflow: hidden;
+  border: var(--line); border-radius: 100px; box-shadow: 0 5px 0 var(--ink); font-size: 23px;
 }
 .ctrl-btn img { width: 32px; height: 32px; }
 .ctrl-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
@@ -251,10 +259,10 @@ h1 span { color: var(--pink-deep); }
 .listen-prompt img { width: 30px; }
 .listen-prompt:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
 .quiz-score { margin-top: 12px; font-size: 22px; letter-spacing: 2px; min-height: 28px; }
-.quiz-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 230px)); justify-content: center; gap: 14px; }
+.quiz-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
 .quiz-choice {
-  --card-w: min(28vw, 230px);
-  aspect-ratio: 1; display: grid; place-items: center; padding: 10%;
+  --card-w: min(43vw, 300px);
+  width: var(--card-w); aspect-ratio: 1; display: grid; place-items: center; padding: 10%;
   background: #fff; border: 4px solid var(--ink); border-radius: 30px; box-shadow: 0 8px 0 var(--ink); transition: transform .15s;
 }
 .quiz-choice > * { width: 100%; height: 100%; }
@@ -392,10 +400,39 @@ h1 span { color: var(--pink-deep); }
   .category-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-height: 700px) {
-  .flashcard-wrap { --card-w: min(80vw, 440px, 48vh); }
+  .flashcard-wrap { --chrome: 270px; }
   .ctrl-btn { height: 56px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+@media (min-width: 700px) {
+  .quiz-choice { --card-w: min(28vw, 300px); }
+  .app-shell { width: min(100%, 1000px); }
+  h1 { font-size: 60px; }
+  .category-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .category-card .cat-name { font-size: 22px; }
+  .section-title { font-size: 30px; }
+  .game-btn strong { font-size: 27px; }
+  .game-btn img { width: 76px; height: 76px; }
+}
+
+/* 가로 화면(폰을 눕혔을 때): 카드는 왼쪽, 버튼은 오른쪽 */
+@media (orientation: landscape) and (max-height: 560px) {
+  .app-shell { padding-inline: clamp(12px, 3vw, 28px); }
+  .topbar { min-height: 46px; }
+  .icon-btn, .star-pill { height: 42px; }
+  .icon-btn { width: 42px; }
+  #cardScreen.active { display: grid; grid-template-columns: 1fr minmax(180px, 280px); grid-template-rows: auto 1fr auto; column-gap: 18px; align-items: center; }
+  #cardScreen .card-heading { grid-column: 1 / -1; padding: 0 2px; }
+  #cardScreen .flashcard-wrap { --chrome: 140px; --card-w: min(58vw, calc((100dvh - var(--chrome)) * .95)); --card-h: calc(100dvh - var(--chrome)); grid-column: 1; grid-row: 2 / 4; margin: 4px 0; padding-bottom: 12px; }
+  #cardScreen .card-controls { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; width: 100%; margin: 0; align-self: end; }
+  #cardScreen .swipe-hint { grid-column: 2; grid-row: 3; margin: 6px 0 0; align-self: start; }
+  .quiz-header { padding: 6px 0; }
+  .quiz-header h2 { font-size: 26px; margin-bottom: 8px; }
+  .quiz-choice { --card-w: min(22vh, 180px); }
+  .quiz-feedback { min-height: 40px; padding-top: 6px; }
+  .bubble-field { height: calc(100dvh - 120px); min-height: 200px; }
 }
