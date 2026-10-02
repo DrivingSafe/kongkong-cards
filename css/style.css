@@ -12,6 +12,7 @@
   --sky: #cfe9ff;
   --white: #ffffff;
   --shadow: 0 7px 0 rgba(107, 58, 94, .16);
+  --u: 1vw; /* 화면 배율 보정 시 JS가 바꿈 */
   --line: 3px solid var(--ink);
   --radius: 26px;
 }
@@ -22,7 +23,7 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: calc(var(--dvh, 1dvh) * 100);
   color: var(--ink);
   background:
     radial-gradient(circle at 12% 8%, #ffe4f1 0 120px, transparent 121px),
@@ -62,15 +63,16 @@ h1, h2, h3, p { margin: 0; font-weight: normal; }
   100% { transform: translate(-10px, -115vh) rotate(-10deg); }
 }
 
+.page { container-type: inline-size; container-name: page; }
 .app-shell {
   position: relative; z-index: 1;
-  width: min(100%, 900px); margin: 0 auto;
-  padding: max(12px, env(safe-area-inset-top)) clamp(16px, 4vw, 32px) max(28px, env(safe-area-inset-bottom));
+  width: min(100%, 1000px); margin: 0 auto;
+  padding: max(12px, env(safe-area-inset-top)) clamp(16px, calc(var(--u) * 4), 32px) max(28px, env(safe-area-inset-bottom));
 }
 
 /* 상단 */
 .topbar { display: flex; align-items: center; gap: 10px; min-height: 56px; }
-.brand { display: flex; align-items: center; gap: 6px; font-size: 24px; color: var(--pink-deep); text-shadow: 0 2px 0 #fff; }
+.brand { display: flex; align-items: center; gap: 6px; font-size: 24px; white-space: nowrap; min-width: 0; color: var(--pink-deep); text-shadow: 0 2px 0 #fff; }
 .brand-bunny { width: 40px; height: 40px; }
 .top-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
 .icon-btn {
@@ -99,9 +101,9 @@ h1, h2, h3, p { margin: 0; font-weight: normal; }
 /* 홈 */
 .hero { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0 20px; }
 .eyebrow { color: var(--pink-deep); font-size: 18px; margin-bottom: 6px; }
-h1 { font-size: clamp(32px, 7.4vw, 52px); line-height: 1.15; }
+h1 { font-size: clamp(32px, calc(var(--u) * 7.4), 52px); line-height: 1.15; }
 h1 span { color: var(--pink-deep); }
-.buddy { position: relative; flex: 0 0 auto; width: clamp(110px, 26vw, 160px); aspect-ratio: 1; }
+.buddy { position: relative; flex: 0 0 auto; width: clamp(110px, calc(var(--u) * 26), 160px); aspect-ratio: 1; }
 .buddy svg { width: 100%; height: 100%; filter: drop-shadow(0 8px 0 rgba(107,58,94,.14)); animation: breathe 3s ease-in-out infinite; }
 .buddy-bubble {
   position: absolute; top: -6px; left: -30px; padding: 6px 12px; font-size: 18px;
@@ -135,7 +137,7 @@ h1 span { color: var(--pink-deep); }
   content: ""; position: absolute; inset: 7px; border: 2px dashed rgba(255,255,255,.9); border-radius: 20px; pointer-events: none;
 }
 .category-card img { width: 64%; height: auto; aspect-ratio: 1; filter: drop-shadow(0 5px 0 rgba(107,58,94,.12)); transition: transform .2s; }
-.category-card .cat-name { font-size: clamp(16px, 4.2vw, 21px); white-space: nowrap; text-align: center; line-height: 1.15; }
+.category-card .cat-name { font-size: clamp(16px, calc(var(--u) * 4.2), 21px); white-space: nowrap; text-align: center; line-height: 1.15; }
 .category-card:hover img { transform: scale(1.06) rotate(-3deg); }
 
 .review-banner {
@@ -167,8 +169,8 @@ h1 span { color: var(--pink-deep); }
    너무 길쭉해지지 않도록 폭의 1.45배까지만 늘림 */
 .flashcard-wrap {
   --chrome: 300px;
-  --card-w: min(88vw, 720px, calc((100dvh - var(--chrome)) * .98));
-  --card-h: clamp(calc(var(--card-w) * .9), calc(100dvh - var(--chrome)), calc(var(--card-w) * 1.45));
+  --card-w: min(calc(var(--u) * 88), 720px, calc((calc(var(--dvh, 1dvh) * 100) - var(--chrome)) * .98));
+  --card-h: clamp(calc(var(--card-w) * .9), calc(calc(var(--dvh, 1dvh) * 100) - var(--chrome)), calc(var(--card-w) * 1.45));
 }
 
 .flashcard {
@@ -222,7 +224,7 @@ h1 span { color: var(--pink-deep); }
 
 .card-controls { display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px; width: min(100%, 560px); margin: 18px auto 0; }
 .ctrl-btn {
-  position: relative; height: 68px; display: flex; align-items: center; justify-content: center; gap: 8px; overflow: hidden;
+  position: relative; height: 68px; display: flex; align-items: center; justify-content: center; gap: 8px; overflow: hidden; white-space: nowrap;
   border: var(--line); border-radius: 100px; box-shadow: 0 5px 0 var(--ink); font-size: 23px;
 }
 .ctrl-btn img { width: 32px; height: 32px; }
@@ -251,7 +253,7 @@ h1 span { color: var(--pink-deep); }
 
 /* 찾기 놀이 */
 .quiz-header { text-align: center; padding: 22px 0 18px; }
-.quiz-header h2 { font-size: clamp(30px, 7vw, 46px); margin-bottom: 14px; }
+.quiz-header h2 { font-size: clamp(30px, calc(var(--u) * 7), 46px); margin-bottom: 14px; }
 .listen-prompt {
   display: inline-flex; align-items: center; gap: 8px; height: 54px; padding: 0 22px;
   background: #fff; border: var(--line); border-radius: 100px; box-shadow: 0 4px 0 var(--ink); font-size: 20px;
@@ -261,7 +263,7 @@ h1 span { color: var(--pink-deep); }
 .quiz-score { margin-top: 12px; font-size: 22px; letter-spacing: 2px; min-height: 28px; }
 .quiz-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
 .quiz-choice {
-  --card-w: min(43vw, 300px);
+  --card-w: min(calc(var(--u) * 43), 300px);
   width: var(--card-w); aspect-ratio: 1; display: grid; place-items: center; padding: 10%;
   background: #fff; border: 4px solid var(--ink); border-radius: 30px; box-shadow: 0 8px 0 var(--ink); transition: transform .15s;
 }
@@ -284,7 +286,7 @@ h1 span { color: var(--pink-deep); }
 .bubble-count { display: flex; align-items: center; gap: 6px; font-size: 26px; background: #fff; border: var(--line); border-radius: 100px; padding: 4px 16px 4px 8px; box-shadow: 0 4px 0 var(--ink); }
 .bubble-count img { width: 36px; }
 .bubble-field {
-  position: relative; height: calc(100dvh - 170px); min-height: 420px; overflow: hidden;
+  position: relative; height: calc(calc(var(--dvh, 1dvh) * 100) - 170px); min-height: 420px; overflow: hidden;
   border: var(--line); border-radius: 32px; box-shadow: var(--shadow);
   background: radial-gradient(circle at 50% 110%, #ffd6ea 0 30%, transparent 31%), linear-gradient(180deg, #e9f6ff, #fbe9ff 70%, #ffe3f0);
 }
@@ -384,7 +386,7 @@ h1 span { color: var(--pink-deep); }
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-@media (max-width: 640px) {
+@container page (max-width: 590px) {
   .category-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .category-card { border-radius: 22px; }
   .game-btn { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 14px 8px; }
@@ -396,7 +398,7 @@ h1 span { color: var(--pink-deep); }
   .sticker-book { grid-template-columns: repeat(3, 1fr); }
   .card-heading { padding-top: 4px; }
 }
-@media (max-width: 380px) {
+@container page (max-width: 348px) {
   .category-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-height: 700px) {
@@ -408,9 +410,8 @@ h1 span { color: var(--pink-deep); }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
-@media (min-width: 700px) {
-  .quiz-choice { --card-w: min(28vw, 300px); }
-  .app-shell { width: min(100%, 1000px); }
+@container page (min-width: 644px) {
+  .quiz-choice { --card-w: min(calc(var(--u) * 28), 300px); }
   h1 { font-size: 60px; }
   .category-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
   .category-card .cat-name { font-size: 22px; }
@@ -421,18 +422,28 @@ h1 span { color: var(--pink-deep); }
 
 /* 가로 화면(폰을 눕혔을 때): 카드는 왼쪽, 버튼은 오른쪽 */
 @media (orientation: landscape) and (max-height: 560px) {
-  .app-shell { padding-inline: clamp(12px, 3vw, 28px); }
+  .app-shell { padding-inline: clamp(12px, calc(var(--u) * 3), 28px); }
   .topbar { min-height: 46px; }
   .icon-btn, .star-pill { height: 42px; }
   .icon-btn { width: 42px; }
   #cardScreen.active { display: grid; grid-template-columns: 1fr minmax(180px, 280px); grid-template-rows: auto 1fr auto; column-gap: 18px; align-items: center; }
   #cardScreen .card-heading { grid-column: 1 / -1; padding: 0 2px; }
-  #cardScreen .flashcard-wrap { --chrome: 140px; --card-w: min(58vw, calc((100dvh - var(--chrome)) * .95)); --card-h: calc(100dvh - var(--chrome)); grid-column: 1; grid-row: 2 / 4; margin: 4px 0; padding-bottom: 12px; }
+  #cardScreen .flashcard-wrap { --chrome: 140px; --card-w: min(calc(var(--u) * 58), calc((calc(var(--dvh, 1dvh) * 100) - var(--chrome)) * .95)); --card-h: calc(calc(var(--dvh, 1dvh) * 100) - var(--chrome)); grid-column: 1; grid-row: 2 / 4; margin: 4px 0; padding-bottom: 12px; }
   #cardScreen .card-controls { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; width: 100%; margin: 0; align-self: end; }
   #cardScreen .swipe-hint { grid-column: 2; grid-row: 3; margin: 6px 0 0; align-self: start; }
   .quiz-header { padding: 6px 0; }
   .quiz-header h2 { font-size: 26px; margin-bottom: 8px; }
   .quiz-choice { --card-w: min(22vh, 180px); }
   .quiz-feedback { min-height: 40px; padding-top: 6px; }
-  .bubble-field { height: calc(100dvh - 120px); min-height: 200px; }
+  .bubble-field { height: calc(calc(var(--dvh, 1dvh) * 100) - 120px); min-height: 200px; }
+}
+
+@container page (max-width: 360px) {
+  .brand { font-size: 19px; }
+  .brand-bunny { width: 32px; height: 32px; }
+  .topbar { gap: 6px; }
+  .top-actions { gap: 6px; }
+  .star-pill { padding: 0 12px 0 8px; font-size: 20px; }
+  .ctrl-btn { font-size: 19px; gap: 5px; }
+  .ctrl-btn img { width: 26px; height: 26px; }
 }

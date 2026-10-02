@@ -1,5 +1,31 @@
 "use strict";
 
+/* ---------- 화면 배율 보정 ----------
+   크롬의 '데스크톱 사이트' 모드처럼 브라우저가 가상 화면 폭을 980px 정도로 넓게 잡으면
+   앱이 PC 화면처럼 작게 보입니다. 실제 기기 폭(screen.width)에 맞게 배율을 올려 줍니다. */
+const viewportFix = (() => {
+  const root = document.documentElement;
+  let zoom = 1;
+  function apply() {
+    root.style.zoom = ""; root.style.removeProperty("--dvh"); root.style.removeProperty("--u");
+    const dev = screen.width, layout = root.clientWidth;
+    zoom = 1;
+    if (navigator.maxTouchPoints > 0 && dev > 0 && dev <= 600 && layout > dev * 1.25) zoom = layout / dev;
+    if (zoom > 1) {
+      root.style.zoom = zoom.toFixed(3);
+      root.style.setProperty("--dvh", `${(innerHeight / 100 / zoom).toFixed(3)}px`);
+      root.style.setProperty("--u", `${(dev / 100).toFixed(3)}px`);
+    }
+  }
+  apply();
+  let timer = 0;
+  const later = () => { clearTimeout(timer); timer = setTimeout(apply, 250); };
+  window.addEventListener("resize", later);
+  window.addEventListener("orientationchange", later);
+  const info = () => `${innerWidth}×${innerHeight} · 화면 ${screen.width}×${screen.height} · DPR ${devicePixelRatio} · 배율 ${zoom.toFixed(2)}`;
+  return { info, zoom: () => zoom };
+})();
+
 /* ---------- 저장소 ---------- */
 const store = {
   get(key, fallback) {
@@ -503,7 +529,7 @@ card.addEventListener("pointerdown", e => {
 });
 card.addEventListener("pointermove", e => {
   if (!drag || e.pointerId !== drag.id) return;
-  drag.dx = e.clientX - drag.x; drag.dy = e.clientY - drag.y;
+  drag.dx = (e.clientX - drag.x) / viewportFix.zoom(); drag.dy = (e.clientY - drag.y) / viewportFix.zoom();
   // 준비되기 전엔 거의 안 움직임(고무줄 저항)
   const k = cardState.ready ? 1 : .18;
   const dx = drag.dx * k, dy = drag.dy * k;
@@ -631,7 +657,8 @@ function spawnBubble() {
   const field = $("#bubbleField");
   const pool = bubblePool().length ? bubblePool() : ALL_CARDS.filter(c => !c.cat.type);
   const c = pick(pool);
-  const w = field.clientWidth, h = field.clientHeight;
+  const fz = viewportFix.zoom(), fb = field.getBoundingClientRect();
+  const w = fb.width / fz - 6, h = fb.height / fz - 6;
   const size = Math.round(Math.min(190, Math.max(110, w * .3)) * (.85 + Math.random() * .3));
   const b = document.createElement("button");
   b.className = "bubble";
@@ -660,7 +687,7 @@ $("#bubbleField").addEventListener("pointerdown", e => {
   sfx.pop();
   const word = document.createElement("span");
   word.className = "pop-word"; word.textContent = wordOf(c);
-  word.style.left = `${br.left - fr.left + br.width / 2}px`; word.style.top = `${br.top - fr.top + br.height / 2}px`;
+  word.style.left = `${(br.left - fr.left + br.width / 2) / viewportFix.zoom()}px`; word.style.top = `${(br.top - fr.top + br.height / 2) / viewportFix.zoom()}px`;
   $("#bubbleField").appendChild(word); setTimeout(() => word.remove(), 1100);
   say(cardSpeech(c, false));
   bubbleCount++; $("#bubbleCount").textContent = bubbleCount;
@@ -687,6 +714,7 @@ function renderSettings() {
     <div class="setting-row">${row.options.map(([value, text]) =>
       `<button class="setting-choice ${settings[row.key] === value ? "selected" : ""}" data-key="${row.key}" data-value='${JSON.stringify(value)}'>${Array.isArray(text) ? text[li] : text}</button>`).join("")}</div>
     ${row.desc ? `<p class="setting-desc">${row.desc[li]}</p>` : ""}`).join("");
+  $("#screenInfo").textContent = viewportFix.info();
   $("#categorySettings").innerHTML = CATS.map(cat =>
     `<button class="category-toggle ${enabledIds.includes(cat.id) ? "selected" : ""}" data-id="${cat.id}">${emojiImg(cat.cover, "", "")}${esc(cat.names[li])}</button>`).join("");
 }
