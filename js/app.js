@@ -632,7 +632,7 @@ function spawnBubble() {
   const pool = bubblePool().length ? bubblePool() : ALL_CARDS.filter(c => !c.cat.type);
   const c = pick(pool);
   const w = field.clientWidth, h = field.clientHeight;
-  const size = Math.round(Math.min(150, Math.max(96, w * .26)) * (.85 + Math.random() * .3));
+  const size = Math.round(Math.min(190, Math.max(110, w * .3)) * (.85 + Math.random() * .3));
   const b = document.createElement("button");
   b.className = "bubble";
   b.dataset.key = c.key;
